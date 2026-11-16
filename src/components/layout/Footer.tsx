@@ -90,7 +90,7 @@ export function Footer() {
         </p>
       </div>
 
-      <p className="wordmark select-none" aria-hidden="true">{site.name}</p>
+      <div className="reaction-line h-1 rounded-none" aria-hidden="true" />
     </footer>
   );
 }
