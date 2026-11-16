@@ -7,6 +7,3 @@ dist-single
 test-results
 playwright-report
 .DS_Store
-
-# CI workflow kept locally; add it on GitHub when ready (needs a token with the Workflows permission)
-.github/
