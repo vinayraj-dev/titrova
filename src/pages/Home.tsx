@@ -15,6 +15,7 @@ import { site } from '@/data/site';
 import { CATEGORIES, FAMILIES, LATEST_ADDED, PLANNED_TOOLS, TOOLS, isNew, toolBySlug, toolsInCategory, toolsInFamily } from '@/data/tools';
 import { pointerFx, pointerFxReset } from '@/hooks/pointerFx';
 import { spanFor } from './Tools';
+import { ToolLink } from '@/components/tools/ToolLink';
 
 const HEADLINE = ['Free', 'Salesforce', 'Developer', 'Tools'];
 const TICKER_A = ['JSON.deserialize', 'SELECT … FROM', '18-character IDs', 'package.xml', '@TestSetup', 'HttpRequest', 'LAST_N_DAYS:30', 'Bearer eyJhbGci…', 'CASESAFEID(Id)'];
@@ -27,7 +28,8 @@ const REASONS = [
   { icon: Gauge, title: 'Quick on any device', text: 'Small pages, no heavy editor to download, and layouts that work from a phone to an ultrawide monitor.' },
 ];
 
-const POPULAR_CTA = ['json-to-apex', 'soql-formatter', 'salesforce-id-converter', 'curl-to-apex', 'json-formatter', 'jwt-decoder', 'regex-tester'];
+const POPULAR_CTA = ['org-xray', 'json-to-apex', 'soql-formatter', 'salesforce-id-converter', 'curl-to-apex', 'json-formatter', 'jwt-decoder'];
+const XRAY_STEPS = ['Before-save flows', 'Before triggers', 'Validation rules', 'After triggers', 'Workflow rules', 'After-save flows', 'Roll-ups and commit'];
 
 function Ticker({ items, reverse }: { items: string[]; reverse?: boolean }) {
   const loop = [...items, ...items];
@@ -140,6 +142,43 @@ export default function Home() {
           <Ticker items={TICKER_B} reverse />
         </div>
       </div>
+
+      {/* Featured: Org X-ray */}
+      <section className="page mt-14 sm:mt-20" aria-labelledby="featured-xray">
+        <Reveal kind="rise" className="relative overflow-hidden rounded-[2rem] bg-ink text-paper">
+          <div className="grid-bg absolute inset-0 opacity-30 invert dark:invert-0" aria-hidden="true" />
+          <div className="relative grid items-center gap-8 p-6 sm:p-10 lg:grid-cols-[1.15fr_1fr]">
+            <div>
+              <p className="flex flex-wrap items-center gap-3">
+                <span className="emoji-bubble" aria-hidden="true">🩻</span>
+                <span className="sticker">New</span>
+                <span className="text-sm font-bold uppercase tracking-[0.14em] text-onink">Featured tool</span>
+              </p>
+              <h2 id="featured-xray" className="mt-4 text-3xl font-bold sm:text-[2.6rem]">Org X-ray: see everything that runs when a record saves</h2>
+              <p className="mt-3 max-w-[52ch] text-lg text-paper/80">
+                Replay every flow, Apex trigger, validation rule, workflow and roll-up in Salesforce’s order of execution, and spot the field
+                one automation sets and another overwrites. Free, private, and it runs in your browser.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <a href="/org-xray/" className="btn h-12 bg-paper px-5 text-ink hover:-translate-y-0.5">
+                  Open Org X-ray <ArrowRight size={17} aria-hidden />
+                </a>
+                <a href="/org-xray/#how" className="btn h-12 border border-paper/25 px-5 text-paper hover:bg-paper/10">How it works</a>
+              </div>
+            </div>
+            <ol className="space-y-2" aria-label="Order of execution, in brief">
+              {XRAY_STEPS.map((step, i) => (
+                <li key={step} className="flex items-center gap-3">
+                  <span className={i < 3 ? 'h-3 w-3 shrink-0 rounded-full bg-onink shadow-[0_0_12px_rgb(var(--onink))]' : 'h-3 w-3 shrink-0 rounded-full border-2 border-paper/40'} aria-hidden="true" />
+                  <span className={i === 1 ? 'rounded-full border border-danger/70 bg-danger/15 px-3.5 py-1.5 text-[0.95rem] font-semibold' : 'rounded-full border border-paper/15 bg-paper/5 px-3.5 py-1.5 text-[0.95rem] text-paper/85'}>
+                    {i === 1 ? 'Before trigger overwrites Discount__c' : step}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </Reveal>
+      </section>
 
       {/* Tools, by family */}
       {(['salesforce', 'developer'] as const).map((f, fi) => {
@@ -319,11 +358,11 @@ export default function Home() {
             <ul className="grid gap-2 sm:grid-cols-2">
               {TOOLS.filter((t) => POPULAR_CTA.includes(t.slug)).map((t) => (
                 <li key={t.slug}>
-                  <Link to={t.path} className="group flex items-center gap-3 rounded-xl border border-paper/15 bg-paper/5 px-4 py-3 font-semibold transition-colors duration-300 hover:bg-paper hover:text-ink">
+                  <ToolLink tool={t} className="group flex items-center gap-3 rounded-xl border border-paper/15 bg-paper/5 px-4 py-3 font-semibold transition-colors duration-300 hover:bg-paper hover:text-ink">
                     <span aria-hidden="true" className="shrink-0 text-lg">{t.emoji}</span>
                     <span className="flex-1">{t.short}</span>
                     <ArrowRight size={16} aria-hidden className="shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Link>
+                  </ToolLink>
                 </li>
               ))}
               <li>

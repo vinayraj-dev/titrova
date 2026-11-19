@@ -1,0 +1,1936 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Salesforce Order of Execution Visualizer | Org X-ray by Titrova</title>
+<meta name="description" content="Replay every flow, Apex trigger, validation rule and workflow that runs when a Salesforce record saves. Free, private, runs in your browser. Find overwritten fields fast.">
+<link rel="canonical" href="https://titrovatools.com/org-xray/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="Kappa Vinay">
+<meta name="theme-color" content="#E8F0F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A1A27" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Titrova">
+<meta property="og:title" content="Org X-ray: see everything that runs when a Salesforce record saves">
+<meta property="og:description" content="Replay Salesforce's order of execution for your own org. Spot overwritten fields and risky Apex in minutes. Free and private.">
+<meta property="og:url" content="https://titrovatools.com/org-xray/">
+<meta property="og:image" content="https://titrovatools.com/org-xray/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Org X-ray replaying the Salesforce order of execution">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Org X-ray: see everything that runs when a Salesforce record saves">
+<meta name="twitter:description" content="Replay Salesforce's order of execution for your own org. Free, private, runs in your browser.">
+<meta name="twitter:image" content="https://titrovatools.com/org-xray/og-image.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2310263A'/%3E%3Crect x='10' y='29' width='44' height='6' rx='3' fill='%235AD2F0'/%3E%3Ccircle cx='32' cy='32' r='12' fill='none' stroke='%23D7E6EF' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="preload" href="/org-xray/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face { font-family: "Archivo"; src: url("/org-xray/archivo.woff2") format("woff2-variations"), url("/org-xray/archivo.woff2") format("woff2"); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://titrovatools.com/org-xray/#app",
+      "name": "Org X-ray",
+      "alternateName": "Salesforce Order of Execution Visualizer",
+      "url": "https://titrovatools.com/org-xray/",
+      "description": "A free, browser-based tool that replays the Salesforce order of execution for your own org metadata, showing every flow, Apex trigger, validation rule, workflow rule and roll-up that runs when a record is inserted, updated or deleted, and flagging fields that are overwritten.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any (runs in a web browser)",
+      "browserRequirements": "Requires JavaScript",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Animated replay of the Salesforce order of execution",
+        "Reads Metadata API and Salesforce DX source zips",
+        "Before-save and after-save flow ordering by trigger order",
+        "Field overwrite and conflict detection",
+        "Apex risk checks: SOQL and DML in loops, without sharing, dynamic SOQL, hardcoded IDs",
+        "Markdown documentation export"
+      ],
+      "author": { "@id": "https://titrovatools.com/org-xray/#author" },
+      "publisher": { "@id": "https://titrovatools.com/#org" }
+    },
+    {
+      "@type": "Person",
+      "@id": "https://titrovatools.com/org-xray/#author",
+      "name": "Kappa Vinay",
+      "jobTitle": "Salesforce & Full Stack Developer",
+      "url": "https://vinayraj-dev.github.io/",
+      "sameAs": ["https://github.com/vinayraj-dev"]
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://titrovatools.com/#org",
+      "name": "Titrova",
+      "url": "https://titrovatools.com/"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Titrova", "item": "https://titrovatools.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Org X-ray", "item": "https://titrovatools.com/org-xray/" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the Salesforce order of execution?",
+          "acceptedAnswer": { "@type": "Answer", "text": "It is the fixed sequence Salesforce follows when a record is saved: system validation, before-save flows, before triggers, validation rules, duplicate rules, the save itself, after triggers, assignment and auto-response rules, workflow rules, processes, after-save flows, roll-up summaries, sharing, commit, and finally post-commit work such as emails and asynchronous Apex." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is my Salesforce metadata uploaded anywhere?",
+          "acceptedAnswer": { "@type": "Answer", "text": "No. Org X-ray reads your zip file inside your own browser with JavaScript. Nothing is uploaded, stored or sent to any server, so you can safely use it on client orgs." }
+        },
+        {
+          "@type": "Question",
+          "name": "Why does my before-save flow value get overwritten?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Before-save flows run before Apex before triggers. If a trigger sets the same field, the trigger's value replaces the flow's value. Org X-ray marks these fields as conflicts and shows which automation wins." }
+        },
+        {
+          "@type": "Question",
+          "name": "Which metadata types does Org X-ray read?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Apex triggers and classes, record-triggered flows, Process Builder processes, workflow rules and field updates, validation rules, roll-up summary fields, duplicate rules, and assignment, auto-response and escalation rules, in both Metadata API and Salesforce DX source format." }
+        },
+        {
+          "@type": "Question",
+          "name": "In what order do multiple record-triggered flows run?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Flows with a trigger order from 1 to 1000 run first, in that order. Flows with no trigger order run next, then flows with a trigger order from 1001 to 2000. Flows with the same trigger order run in alphabetical order of their API names." }
+        },
+        {
+          "@type": "Question",
+          "name": "Is Org X-ray free?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes. The replay, findings and documentation export are free to use." }
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<style>
+:root {
+  --bg: #E8F0F4;
+  --surface: #F7FAFC;
+  --ink: #14304A;
+  --muted: #46596B;
+  --rule: #C3D3DE;
+  --accent: #075E76;
+  --accent-ink: #FFFFFF;
+  --pencil: #BF2D29;
+  --wax: #755604;
+  --focus: #075E76;
+
+  --film: #10263A;
+  --film-2: #15304A;
+  --film-ink: #D7E6EF;
+  --film-muted: #8AA5B9;
+  --film-rule: #234560;
+  --beam: #5AD2F0;
+  --beam-soft: rgba(90, 210, 240, .16);
+  --film-pencil: #FF7366;
+  --film-wax: #F3C451;
+
+  --font: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --code: ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
+  --measure: 68ch;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A1A27;
+    --surface: #10263A;
+    --ink: #DCE8EF;
+    --muted: #8FA8BA;
+    --rule: #22425B;
+    --accent: #5AD2F0;
+    --accent-ink: #062030;
+    --pencil: #FF7366;
+    --wax: #F3C451;
+    --focus: #5AD2F0;
+    --film: #0E2334;
+    --film-2: #132D44;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A1A27;
+  --surface: #10263A;
+  --ink: #DCE8EF;
+  --muted: #8FA8BA;
+  --rule: #22425B;
+  --accent: #5AD2F0;
+  --accent-ink: #062030;
+  --pencil: #FF7366;
+  --wax: #F3C451;
+  --focus: #5AD2F0;
+  --film: #0E2334;
+  --film-2: #132D44;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 72px); -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  font-stretch: 100%;
+}
+img, svg { max-width: 100%; }
+a { color: var(--accent); text-underline-offset: .18em; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+code, pre, .api { font-family: var(--code); font-size: .88em; }
+.wrap { width: min(1240px, 100% - 2.5rem); margin-inline: auto; }
+.skip { position: absolute; left: -999px; top: 0; background: var(--surface); padding: .6rem 1rem; z-index: 50; }
+.skip:focus { left: 1rem; top: 1rem; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Header */
+.site-head {
+  position: sticky; top: 0; z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  border-bottom: 1px solid var(--rule);
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 21;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(10px);
+}
+.site-head .wrap { display: flex; align-items: center; gap: 1.25rem; min-height: 60px; }
+.brand { display: flex; align-items: baseline; gap: .6rem; text-decoration: none; color: var(--ink); }
+.brand b { font-weight: 800; font-stretch: 112%; font-size: 1.15rem; letter-spacing: -.01em; }
+.brand span { color: var(--muted); font-size: .95rem; }
+.site-nav { margin-left: auto; display: flex; gap: 1.1rem; align-items: center; }
+.site-nav a { color: var(--ink); text-decoration: none; font-size: .95rem; }
+.site-nav a:hover { color: var(--accent); }
+.theme-btn {
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+  width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+}
+@media (max-width: 760px) { .site-nav a { display: none; } }
+
+/* Hero */
+.hero { padding: clamp(2.5rem, 6vw, 4.5rem) 0 2rem; }
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2.3rem, 6.2vw, 4.6rem);
+  line-height: .98;
+  font-weight: 820;
+  font-stretch: 122%;
+  letter-spacing: -.025em;
+  max-width: 17ch;
+  text-wrap: balance;
+}
+.hero-body { display: grid; gap: 0 3rem; align-items: end; }
+@media (min-width: 980px) {
+  .hero h1 { font-size: clamp(3rem, 5.6vw, 4.9rem); max-width: 19ch; }
+  .hero-body { grid-template-columns: minmax(0, 58ch) auto; }
+  .hero-body .hero-lede { margin-bottom: 0; }
+  .hero-side { padding-bottom: .2rem; }
+}
+.hero-lede { max-width: 58ch; font-size: clamp(1.08rem, 1.6vw, 1.22rem); color: var(--ink); margin: 1.4rem 0 1.6rem; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+.privacy-line { display: flex; gap: .55rem; align-items: flex-start; margin: 1.1rem 0 0; color: var(--muted); font-size: .95rem; max-width: 44ch; }
+.privacy-line svg { flex: none; margin-top: .15rem; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font: inherit; font-weight: 650; font-size: 1rem;
+  padding: .72rem 1.15rem; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+  text-decoration: none; min-height: 44px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-small { padding: .45rem .8rem; font-size: .92rem; min-height: 38px; border-radius: 8px; }
+
+/* Workspace */
+.tool { padding-bottom: 3rem; }
+.controls { display: flex; flex-wrap: wrap; gap: .9rem 1.5rem; align-items: flex-end; margin-bottom: 1rem; }
+.upload-field { display: flex; flex-wrap: wrap; gap: .5rem; }
+.field label, .field .label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .3rem; }
+select {
+  font: inherit; font-size: .98rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 8px; padding: .55rem 2rem .55rem .7rem; min-height: 42px; max-width: 100%;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 16px) 52%, calc(100% - 11px) 52%;
+  background-size: 5px 5px; background-repeat: no-repeat;
+}
+.segmented { display: inline-flex; border: 1px solid var(--rule); border-radius: 9px; overflow: hidden; background: var(--surface); }
+.segmented button {
+  font: inherit; font-size: .95rem; border: 0; background: transparent; color: var(--ink);
+  padding: .55rem .9rem; cursor: pointer; min-height: 42px;
+}
+.segmented button + button { border-left: 1px solid var(--rule); }
+.segmented button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 650; }
+.upload-field input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.status { font-size: .93rem; color: var(--muted); min-height: 1.4em; margin: -.25rem 0 .9rem; }
+.status.error { color: var(--pencil); }
+.story {
+  border-left: 3px solid var(--accent); padding: .2rem 0 .2rem 1rem; margin: 0 0 1.1rem; max-width: 75ch; color: var(--ink);
+}
+
+/* The film: the one bold element */
+.film {
+  position: relative;
+  background: var(--film);
+  color: var(--film-ink);
+  border-radius: 6px;
+  padding: 1rem;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.06), 0 30px 60px -30px rgba(10, 40, 60, .55);
+  overflow: hidden;
+  overflow: clip;
+}
+.film::before {
+  /* film edge perforations */
+  content: ""; position: absolute; inset: 0 auto 0 0; width: 12px;
+  background: repeating-linear-gradient(to bottom, transparent 0 10px, rgba(255,255,255,.07) 10px 18px);
+  pointer-events: none;
+}
+.film-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .6rem;
+  padding: .25rem .25rem .9rem 1rem; border-bottom: 1px solid var(--film-rule); margin-bottom: .75rem;
+}
+.film-bar .film-title { font-weight: 750; font-stretch: 112%; font-size: 1.05rem; margin-right: auto; }
+.film-bar .film-title small { display: block; font-weight: 400; font-stretch: 100%; color: var(--film-muted); font-size: .85rem; }
+.fbtn {
+  font: inherit; font-size: .92rem; color: var(--film-ink); background: var(--film-2);
+  border: 1px solid var(--film-rule); border-radius: 8px; padding: .45rem .75rem; min-height: 40px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: .4rem;
+}
+.fbtn:hover { border-color: var(--beam); }
+.fbtn.play { background: var(--beam); color: #04202C; border-color: var(--beam); font-weight: 700; min-width: 96px; justify-content: center; }
+.fbtn svg { width: 16px; height: 16px; }
+.film select { background-color: var(--film-2); color: var(--film-ink); border-color: var(--film-rule); min-height: 40px; font-size: .9rem; }
+.film .toggle { display: inline-flex; align-items: center; gap: .4rem; font-size: .9rem; color: var(--film-muted); cursor: pointer; }
+.film .toggle input { accent-color: var(--beam); width: 16px; height: 16px; }
+.film :focus-visible { outline-color: var(--beam); }
+
+.film-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr); gap: 1.25rem; }
+@media (max-width: 900px) { .film-grid { grid-template-columns: 1fr; } .record { position: static; } }
+
+
+.pipeline { position: relative; list-style: none; margin: 0; padding: .25rem 0 .25rem 2.6rem; }
+.pipeline .rail { position: absolute; left: 1.05rem; top: .9rem; bottom: .9rem; width: 2px; background: var(--film-rule); }
+.pipeline .rail-fill { position: absolute; left: 0; top: 0; width: 100%; height: 0; background: var(--beam); box-shadow: 0 0 10px var(--beam); transition: height .5s ease; }
+.beam {
+  position: absolute; left: 0; right: 0; height: 0; top: 0; pointer-events: none; z-index: 2; opacity: 0;
+  transition: transform .55s cubic-bezier(.3,.7,.2,1), opacity .3s;
+}
+.beam::before {
+  content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--beam) 12%, var(--beam) 88%, transparent);
+  box-shadow: 0 0 18px 2px var(--beam);
+}
+.beam::after {
+  content: ""; position: absolute; left: 0; right: 0; top: -40px; height: 40px;
+  background: linear-gradient(to top, var(--beam-soft), transparent);
+}
+.beam.on { opacity: 1; }
+
+.stage { position: relative; padding: .7rem .75rem .75rem; border-radius: 6px; transition: opacity .45s, background-color .3s, filter .45s; }
+.stage + .stage { margin-top: .15rem; }
+.stage .dot {
+  position: absolute; left: -2.05rem; top: .95rem; width: 14px; height: 14px; border-radius: 50%;
+  background: var(--film); border: 2px solid var(--film-muted); transition: all .3s;
+}
+.stage-head { display: flex; align-items: baseline; gap: .6rem; }
+.stage-n { color: var(--film-muted); font-variant-numeric: tabular-nums; font-size: .9rem; min-width: 1.6em; }
+.stage-title { font-weight: 680; font-size: 1.02rem; margin: 0; }
+.stage-count { margin-left: auto; font-size: .85rem; color: var(--film-muted); white-space: nowrap; }
+.stage-desc { margin: .25rem 0 0 2.2rem; font-size: .9rem; color: var(--film-muted); max-width: 70ch; }
+.stage.empty .stage-title { font-weight: 450; color: var(--film-muted); }
+.stage.empty .stage-desc { display: none; }
+.pipeline.hide-empty .stage.empty { display: none; }
+.stage.system .stage-title { font-weight: 520; }
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; margin: .6rem 0 0 2.2rem; }
+.chip {
+  font: inherit; text-align: left; cursor: pointer;
+  display: inline-flex; flex-direction: column; gap: .1rem;
+  background: var(--film-2); color: var(--film-ink);
+  border: 1px solid var(--film-rule); border-radius: 12px;
+  padding: .45rem .8rem .5rem; max-width: 100%;
+}
+.chip:hover { border-color: var(--beam); }
+.chip .k { font-size: .76rem; color: var(--film-muted); }
+.chip .n { font-size: .92rem; font-weight: 600; overflow-wrap: anywhere; }
+.chip .s { font-size: .78rem; color: var(--film-muted); }
+.chip.warn { border-color: color-mix(in srgb, var(--film-wax) 55%, transparent); }
+.chip.clash { border-color: var(--film-pencil); }
+.chip.clash .s { color: var(--film-pencil); }
+
+/* replay states */
+.pipeline.replaying .stage { opacity: .32; filter: saturate(.4); }
+.pipeline.replaying .stage.done { opacity: .9; filter: none; }
+.pipeline.replaying .stage.active { opacity: 1; filter: none; background: var(--beam-soft); }
+.stage.done .dot { background: var(--beam); border-color: var(--beam); }
+.stage.active .dot { background: var(--beam); border-color: #fff; box-shadow: 0 0 0 6px var(--beam-soft), 0 0 16px var(--beam); }
+.stage.active .chip { animation: chip-in .45s both; }
+.stage.active .chip:nth-child(2) { animation-delay: .08s; }
+.stage.active .chip:nth-child(3) { animation-delay: .16s; }
+.stage.active .chip:nth-child(4) { animation-delay: .24s; }
+.stage.active .chip:nth-child(n+5) { animation-delay: .3s; }
+@keyframes chip-in { from { opacity: 0; transform: translateY(6px) scale(.97); } to { opacity: 1; transform: none; } }
+.stage.loop { border: 1px dashed color-mix(in srgb, var(--film-wax) 60%, transparent); }
+.stage.loop .stage-n { color: var(--film-wax); }
+
+/* Record panel */
+.record { position: sticky; top: 76px; align-self: start; background: var(--film-2); border: 1px solid var(--film-rule); border-radius: 6px; padding: 1rem; }
+.record h3 { margin: 0; font-size: 1.05rem; font-weight: 750; font-stretch: 110%; }
+.record .sub { margin: .2rem 0 .9rem; font-size: .88rem; color: var(--film-muted); }
+.fields { list-style: none; margin: 0; padding: 0; }
+.fields li { padding: .65rem 0; border-top: 1px solid var(--film-rule); }
+.frow { display: flex; align-items: center; gap: .6rem; }
+.fname { font-family: var(--code); font-size: .86rem; overflow-wrap: anywhere; }
+.fval { margin-left: auto; position: relative; font-family: var(--code); font-size: .88rem; font-weight: 700; color: #fff; padding: .1rem .45rem; border-radius: 4px; transition: background-color .6s; text-align: right; max-width: 58%; overflow-wrap: anywhere; }
+.fval.flash { background: var(--beam-soft); }
+.fhist { margin-top: .3rem; font-size: .8rem; color: var(--film-muted); }
+.fhist .who { color: var(--film-ink); }
+.fhist .lost { text-decoration: line-through; text-decoration-color: var(--film-pencil); }
+.pencil { position: absolute; left: -14px; top: -10px; width: calc(100% + 28px); height: calc(100% + 20px); max-width: none; pointer-events: none; overflow: visible; }
+.pencil path { fill: none; stroke: var(--film-pencil); stroke-width: 2.4; stroke-linecap: round; }
+.pencil.anim path { stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw .7s .1s ease-out forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.clash-note { margin-top: .35rem; font-size: .8rem; color: var(--film-pencil); }
+.record .empty-note { color: var(--film-muted); font-size: .9rem; margin: 0; }
+.record .summary { margin: .9rem 0 0; padding-top: .8rem; border-top: 1px solid var(--film-rule); font-size: .9rem; }
+.record .summary strong { color: var(--beam); }
+
+.live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* Drop overlay */
+.film.dragging::after {
+  content: "Drop your metadata zip to X-ray it"; position: absolute; inset: 0; z-index: 5;
+  display: grid; place-items: center; font-size: 1.3rem; font-weight: 700;
+  background: rgba(14, 35, 52, .88); border: 2px dashed var(--beam); border-radius: 6px; color: var(--film-ink);
+}
+
+/* Now playing strip (mobile) */
+.nowbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  padding: .7rem 1rem calc(.7rem + env(safe-area-inset-bottom, 0px));
+  background: var(--film); color: var(--film-ink); border-top: 2px solid var(--beam);
+  display: none; align-items: center; gap: .8rem; font-size: .92rem;
+}
+.nowbar.show { display: flex; }
+.nowbar .np-step { font-weight: 700; }
+.nowbar .np-change { color: var(--film-muted); font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nowbar .np-text { min-width: 0; flex: 1; }
+@media (min-width: 901px) { .nowbar { display: none !important; } }
+
+/* Findings and export */
+.section { padding: 3rem 0; border-top: 1px solid var(--rule); }
+.section h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.08; font-weight: 800; font-stretch: 115%; letter-spacing: -.015em; margin: 0 0 .8rem; max-width: 24ch; }
+.section > .wrap > p, .section .intro { max-width: var(--measure); }
+.findings { list-style: none; padding: 0; margin: 1.4rem 0 0; display: grid; gap: .9rem; max-width: 900px; }
+.finding { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: .3rem 1rem; padding: 1rem 0; border-top: 1px solid var(--rule); }
+.finding .sev { font-weight: 700; font-size: .92rem; }
+.finding.conflict .sev { color: var(--pencil); }
+.finding.risk .sev { color: var(--wax); }
+.finding.note .sev { color: var(--muted); }
+.finding h3 { margin: 0; font-size: 1.05rem; font-weight: 680; }
+.finding p { margin: .25rem 0 0; max-width: 72ch; }
+.finding .fix { color: var(--muted); }
+@media (max-width: 600px) { .finding { grid-template-columns: 1fr; } }
+.export-row { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.2rem; }
+
+/* How-to and reference */
+.steps-3 { counter-reset: s; list-style: none; padding: 0; margin: 1.6rem 0 0; display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.steps-3 > li { counter-increment: s; position: relative; padding-top: 3.2rem; }
+.steps-3 > li::before { content: counter(s); position: absolute; top: 0; left: 0; font-size: 2.6rem; line-height: 1; font-weight: 850; font-stretch: 125%; color: var(--accent); }
+.steps-3 h3 { margin: 0 0 .4rem; font-size: 1.15rem; }
+.steps-3 p { margin: 0 0 .6rem; }
+.codebox { position: relative; background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; margin: .6rem 0; }
+.codebox pre { margin: 0; padding: .9rem 1rem; overflow-x: auto; font-size: .82rem; line-height: 1.5; }
+.codebox .copy { position: absolute; top: .4rem; right: .4rem; }
+
+.oe { list-style: none; padding: 0; margin: 1.5rem 0 0; max-width: 820px; counter-reset: oe; }
+.oe > li { counter-increment: oe; display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0 .8rem; padding: .9rem 0; border-top: 1px solid var(--rule); }
+.oe > li::before { content: counter(oe); font-weight: 800; font-stretch: 120%; font-size: 1.3rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+.oe > li.sub::before { content: counter(oe) "a"; }
+.oe > li.sub { counter-increment: none; }
+.oe h4 { margin: 0; font-size: 1.05rem; font-weight: 680; }
+.oe p { margin: .2rem 0 0; color: var(--ink); }
+.oe-note { color: var(--muted); font-size: .95rem; max-width: var(--measure); }
+.oe-title { font-size: 1.25rem; margin: 2.2rem 0 0; }
+
+.checks { columns: 2 320px; column-gap: 2.5rem; padding-left: 1.1rem; max-width: 960px; }
+.checks li { break-inside: avoid; margin-bottom: .7rem; }
+
+.faq { max-width: 820px; margin-top: 1rem; }
+.faq details { border-top: 1px solid var(--rule); padding: .2rem 0; }
+.faq details:last-child { border-bottom: 1px solid var(--rule); }
+.faq summary { cursor: pointer; padding: .9rem 2rem .9rem 0; font-weight: 650; font-size: 1.06rem; list-style: none; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: .3rem; top: .7rem; font-size: 1.4rem; font-weight: 400; color: var(--accent); transition: transform .2s; }
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { margin: 0 0 1rem; max-width: 70ch; }
+
+.site-foot { padding: 2.5rem 0 3.5rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .92rem; }
+.site-foot p { margin: .3rem 0; max-width: 80ch; }
+
+/* Dialog */
+dialog.detail {
+  width: min(720px, 100% - 1.5rem); max-height: min(85vh, 900px); padding: 0; border: 1px solid var(--film-rule);
+  border-radius: 10px; background: var(--film); color: var(--film-ink);
+}
+dialog.detail::backdrop { background: rgba(6, 18, 28, .6); backdrop-filter: blur(2px); }
+.detail-inner { padding: 1.3rem 1.4rem 1.5rem; overflow: auto; max-height: inherit; }
+.detail-head { display: flex; align-items: flex-start; gap: 1rem; }
+.detail-head h2 { margin: 0; font-size: 1.35rem; font-weight: 780; font-stretch: 110%; overflow-wrap: anywhere; }
+.detail-head .k { color: var(--film-muted); font-size: .9rem; }
+.detail-close { margin-left: auto; flex: none; }
+.detail dl { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: .45rem 1rem; margin: 1.1rem 0 0; font-size: .95rem; }
+.detail dt { color: var(--film-muted); }
+.detail dd { margin: 0; overflow-wrap: anywhere; }
+.detail pre { background: #0A1B29; border: 1px solid var(--film-rule); border-radius: 6px; padding: .8rem; overflow-x: auto; font-size: .8rem; line-height: 1.5; margin: 1rem 0 0; max-height: 360px; }
+.detail .risks { margin: 1rem 0 0; padding-left: 1.1rem; }
+.detail details.cls { margin-top: .8rem; }
+.detail details.cls summary { cursor: pointer; color: var(--beam); }
+.detail .risks li { margin-bottom: .4rem; }
+.detail .risks .r { color: var(--film-wax); font-weight: 650; }
+@media (max-width: 600px) { .detail dl { grid-template-columns: 1fr; } .detail dt { margin-top: .4rem; } }
+
+@media (max-width: 600px) {
+  .film { padding: .75rem .6rem .9rem 1rem; }
+  .film-bar { padding-left: .4rem; }
+  .pipeline { padding-left: 2rem; }
+  .pipeline .rail { left: .72rem; }
+  .stage { padding: .6rem .5rem .65rem; }
+  .stage .dot { left: -1.62rem; }
+  .stage-desc, .chips { margin-left: 0; }
+  .film .toggle { width: 100%; }
+  .stage-desc { font-size: .86rem; }
+  .chip { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-delay: 0ms !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
+
+@media print {
+  .site-head, .hero-actions, .privacy-line, .controls, .status, .film-bar button, .film-bar select, .film-bar .toggle, .nowbar, .export-row, #how, #faq, .site-foot, .beam, .rail { display: none !important; }
+  body { background: #fff; color: #000; }
+  .film { background: #fff; color: #000; box-shadow: none; padding: 0; }
+  .film::before { display: none; }
+  .film-grid { grid-template-columns: 1fr; }
+  .stage, .pipeline.replaying .stage { opacity: 1 !important; filter: none !important; background: none !important; break-inside: avoid; }
+  .stage-desc, .chip .k, .chip .s, .stage-n, .stage-count, .record .sub, .fhist { color: #333 !important; }
+  .chip { background: #fff; color: #000; border-color: #999; }
+  .record { position: static; background: #fff; border-color: #999; color: #000; }
+  .pipeline.hide-empty .stage.empty, .stage.empty { display: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#tool">Skip to the replay</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="/"><b>Titrova</b><span>Org X-ray</span></a>
+    <nav class="site-nav" aria-label="On this page">
+      <a href="#tool">Replay</a>
+      <a href="#how">How to use</a>
+      <a href="#order">Order of execution</a>
+      <a href="#faq">FAQ</a>
+      <button class="theme-btn" id="themeBtn" type="button" aria-label="Switch to dark theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero wrap">
+    <h1>See everything that runs when a Salesforce record saves</h1>
+    <div class="hero-body">
+    <p class="hero-lede">Org X-ray replays Salesforce’s order of execution for your own org: every flow, Apex trigger, validation rule and workflow, in the order they really fire. Find the fields that get overwritten and the risky Apex before your users do.</p>
+    <div class="hero-side">
+    <div class="hero-actions">
+      <button class="btn btn-primary" id="heroPlay" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12-7.5z"/></svg>
+        Replay the demo org
+      </button>
+      <label class="btn" for="zipInput">Upload your metadata zip</label>
+    </div>
+    <p class="privacy-line">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+      Your metadata is read inside your browser. Nothing is uploaded, stored or sent anywhere.
+    </p>
+    </div>
+    </div>
+    <noscript><p class="status error">Org X-ray needs JavaScript to read your metadata. The order of execution reference further down works without it.</p></noscript>
+  </section>
+
+  <section class="tool wrap" id="tool" aria-label="Org X-ray replay">
+    <div class="controls">
+      <div class="field">
+        <span class="label">Metadata</span>
+        <div class="upload-field">
+          <input type="file" id="zipInput" accept=".zip,application/zip,application/x-zip-compressed">
+          <label class="btn btn-small" for="zipInput">Upload metadata zip</label>
+          <button class="btn btn-small" id="demoBtn" type="button" hidden>Back to the demo org</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="objectSel">Object</label>
+        <select id="objectSel"></select>
+      </div>
+      <div class="field">
+        <span class="label" id="opLabel">When a record is</span>
+        <div class="segmented" role="group" aria-labelledby="opLabel" id="opGroup">
+          <button type="button" data-op="insert" aria-pressed="false">Created</button>
+          <button type="button" data-op="update" aria-pressed="true">Updated</button>
+          <button type="button" data-op="delete" aria-pressed="false">Deleted</button>
+        </div>
+      </div>
+    </div>
+    <p class="status" id="status" role="status"></p>
+    <p class="story" id="story"></p>
+
+    <div class="film" id="film">
+      <div class="film-bar">
+        <div class="film-title"><span id="filmTitle">Opportunity, updated</span><small id="filmSub"></small></div>
+        <button class="fbtn" id="prevBtn" type="button" aria-label="Previous step">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>
+        </button>
+        <button class="fbtn play" id="playBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" id="playIcon"><path d="M7 4.5v15l12-7.5z"/></svg>
+          <span id="playLabel">Play</span>
+        </button>
+        <button class="fbtn" id="nextBtn" type="button" aria-label="Next step">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+        </button>
+        <button class="fbtn" id="restartBtn" type="button" aria-label="Restart the replay">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        </button>
+        <select id="speedSel" aria-label="Replay speed">
+          <option value="0.6">Slow</option>
+          <option value="1" selected>Normal</option>
+          <option value="1.8">Fast</option>
+        </select>
+        <label class="toggle"><input type="checkbox" id="hideEmpty"> Hide empty steps</label>
+      </div>
+      <div class="film-grid">
+        <ol class="pipeline" id="pipeline" aria-label="Order of execution for the selected object"></ol>
+        <aside class="record" id="record" aria-label="Fields changed during the save"></aside>
+      </div>
+      <div class="live" aria-live="polite" id="live"></div>
+    </div>
+  </section>
+
+  <section class="section" id="findings" aria-labelledby="findingsTitle">
+    <div class="wrap">
+      <h2 id="findingsTitle">What the X-ray found</h2>
+      <p class="intro" id="findingsIntro"></p>
+      <ul class="findings" id="findingsList"></ul>
+      <div class="export-row">
+        <button class="btn btn-primary" id="exportObj" type="button">Download documentation for this object</button>
+        <button class="btn" id="exportOrg" type="button">Download documentation for the whole org</button>
+        <button class="btn" id="printBtn" type="button">Print or save as PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="howTitle">
+    <div class="wrap">
+      <h2 id="howTitle">Replay your own org in three steps</h2>
+      <ol class="steps-3">
+        <li>
+          <h3>Retrieve your metadata</h3>
+          <p>Save this as <code>package.xml</code>. Add any other standard objects you use.</p>
+          <div class="codebox">
+            <button class="btn btn-small copy" type="button" data-copy="pkgXml">Copy</button>
+<pre id="pkgXml" tabindex="0" aria-label="package.xml to retrieve the metadata">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;Package xmlns="http://soap.sforce.com/2006/04/metadata"&gt;
+  &lt;types&gt;&lt;members&gt;*&lt;/members&gt;&lt;name&gt;ApexTrigger&lt;/name&gt;&lt;/types&gt;
+  &lt;types&gt;&lt;members&gt;*&lt;/members&gt;&lt;name&gt;ApexClass&lt;/name&gt;&lt;/types&gt;
+  &lt;types&gt;&lt;members&gt;*&lt;/members&gt;&lt;name&gt;Flow&lt;/name&gt;&lt;/types&gt;
+  &lt;types&gt;&lt;members&gt;*&lt;/members&gt;&lt;name&gt;Workflow&lt;/name&gt;&lt;/types&gt;
+  &lt;types&gt;&lt;members&gt;*&lt;/members&gt;&lt;name&gt;DuplicateRule&lt;/name&gt;&lt;/types&gt;
+  &lt;types&gt;&lt;members&gt;*&lt;/members&gt;&lt;name&gt;AssignmentRules&lt;/name&gt;&lt;/types&gt;
+  &lt;types&gt;&lt;members&gt;*&lt;/members&gt;&lt;name&gt;AutoResponseRules&lt;/name&gt;&lt;/types&gt;
+  &lt;types&gt;&lt;members&gt;*&lt;/members&gt;&lt;name&gt;EscalationRules&lt;/name&gt;&lt;/types&gt;
+  &lt;types&gt;
+    &lt;members&gt;*&lt;/members&gt;
+    &lt;members&gt;Account&lt;/members&gt;
+    &lt;members&gt;Contact&lt;/members&gt;
+    &lt;members&gt;Lead&lt;/members&gt;
+    &lt;members&gt;Opportunity&lt;/members&gt;
+    &lt;members&gt;Case&lt;/members&gt;
+    &lt;name&gt;CustomObject&lt;/name&gt;
+  &lt;/types&gt;
+  &lt;version&gt;62.0&lt;/version&gt;
+&lt;/Package&gt;</pre>
+          </div>
+          <p>Then run this with the Salesforce CLI:</p>
+          <div class="codebox">
+            <button class="btn btn-small copy" type="button" data-copy="cliCmd">Copy</button>
+<pre id="cliCmd" tabindex="0" aria-label="Salesforce CLI command">sf project retrieve start --manifest package.xml --target-metadata-dir xray</pre>
+          </div>
+          <p>You get <code>xray/unpackaged.zip</code>. A zip of your Salesforce DX <code>force-app</code> folder works too.</p>
+        </li>
+        <li>
+          <h3>Drop the zip on the X-ray</h3>
+          <p>Use Upload metadata zip, or drag the file onto the replay. Org X-ray reads it in your browser, so nothing leaves your computer.</p>
+        </li>
+        <li>
+          <h3>Pick an object and press Play</h3>
+          <p>Choose created, updated or deleted. Watch each automation fire in order, and see which fields change, which get overwritten, and what to fix.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" id="order" aria-labelledby="orderTitle">
+    <div class="wrap">
+      <h2 id="orderTitle">Salesforce order of execution, step by step</h2>
+      <p class="intro">Every time a record is saved, Salesforce runs its automation in a fixed sequence. Knowing that sequence explains most “why did this field change?” bugs. These are the steps Org X-ray replays, simplified from Salesforce’s documentation.</p>
+
+      <h3 class="oe-title">When a record is created or updated</h3>
+      <ol class="oe" id="oeSave">
+        <li data-key="load" data-system="1"><div><h4>Original record loaded</h4><p>Salesforce loads the existing record from the database, or initializes a new record for an insert.</p></div></li>
+        <li data-key="sysval" data-system="1"><div><h4>New values and system validation</h4><p>New field values overwrite the old ones. For saves from the user interface, Salesforce checks layout-required fields, field formats and maximum lengths. For API saves, it checks foreign keys and restricted picklists.</p></div></li>
+        <li data-key="beforeFlows"><div><h4>Before-save flows</h4><p>Record-triggered flows set to run before the record is saved. They update fields on the same record without extra DML, and they run before any Apex.</p></div></li>
+        <li data-key="beforeTriggers"><div><h4>Before triggers</h4><p>Apex before triggers run. A value a before trigger sets replaces any value a before-save flow set on the same field.</p></div></li>
+        <li data-key="validation"><div><h4>Validation rules</h4><p>Most system validation runs again, including required fields, then your custom validation rules. If any rule fails, the save stops and nothing after this runs.</p></div></li>
+        <li data-key="duplicate"><div><h4>Duplicate rules</h4><p>Duplicate rules look for matching records. A rule can block the save or let it through with an alert.</p></div></li>
+        <li data-key="save" data-system="1"><div><h4>Record saved, not committed</h4><p>The record is written to the database, but the transaction is not committed yet. A new record now has an Id.</p></div></li>
+        <li data-key="afterTriggers"><div><h4>After triggers</h4><p>Apex after triggers run. They can read the saved record, including its Id, and change related records.</p></div></li>
+        <li data-key="assignment"><div><h4>Assignment rules</h4><p>Assignment rules route Leads and Cases to an owner or queue.</p></div></li>
+        <li data-key="autoresponse"><div><h4>Auto-response rules</h4><p>Auto-response rules send automatic emails for Leads and Cases.</p></div></li>
+        <li data-key="workflow"><div><h4>Workflow rules</h4><p>Legacy workflow rules evaluate. If a rule’s field update changes the record, the record is saved again.</p></div></li>
+        <li data-key="rerun" class="sub" data-conditional="1"><div><h4>Update triggers run again</h4><p>Because a workflow field update changed the record, before update and after update triggers fire one more time. Validation rules, flows and duplicate rules do not run again.</p></div></li>
+        <li data-key="escalation"><div><h4>Escalation rules</h4><p>Case escalation rules evaluate.</p></div></li>
+        <li data-key="processes"><div><h4>Processes</h4><p>Legacy Process Builder processes run. Their order relative to each other is not guaranteed.</p></div></li>
+        <li data-key="afterFlows"><div><h4>After-save flows</h4><p>Record-triggered flows set to run after the record is saved, in trigger order. If a flow updates the record that triggered it, the record is saved again and the sequence repeats.</p></div></li>
+        <li data-key="entitlement"><div><h4>Entitlement rules</h4><p>Entitlement rules evaluate for records that use entitlement processes.</p></div></li>
+        <li data-key="rollup"><div><h4>Roll-up summaries and parents</h4><p>Roll-up summary fields recalculate on parent records. Each parent then goes through its own save, with its own automation, and grandparents follow the same way.</p></div></li>
+        <li data-key="sharing"><div><h4>Criteria-based sharing</h4><p>Criteria-based sharing rules are evaluated.</p></div></li>
+        <li data-key="commit" data-system="1"><div><h4>Commit</h4><p>All changes in the transaction are committed to the database together.</p></div></li>
+        <li data-key="post"><div><h4>After commit</h4><p>Salesforce sends emails and starts queued asynchronous work: queueable and future Apex, platform events, and asynchronous paths in record-triggered flows.</p></div></li>
+      </ol>
+
+      <h3 class="oe-title">When a record is deleted</h3>
+      <ol class="oe" id="oeDelete">
+        <li data-key="load" data-system="1"><div><h4>Record loaded</h4><p>Salesforce loads the record that is being deleted.</p></div></li>
+        <li data-key="beforeDelete"><div><h4>Before-delete flows and before delete triggers</h4><p>Record-triggered flows set to run before delete, and Apex before delete triggers. Don’t build logic that depends on one of these running before the other.</p></div></li>
+        <li data-key="deleted" data-system="1"><div><h4>Record deleted, not committed</h4><p>The record moves to the Recycle Bin inside the open transaction. Validation rules don’t run when a record is deleted.</p></div></li>
+        <li data-key="afterTriggers"><div><h4>After delete triggers</h4><p>Apex after delete triggers run.</p></div></li>
+        <li data-key="rollup"><div><h4>Roll-up summaries and parents</h4><p>Parent roll-up summary fields recalculate, and each parent goes through its own save.</p></div></li>
+        <li data-key="commit" data-system="1"><div><h4>Commit</h4><p>All changes in the transaction are committed to the database together.</p></div></li>
+        <li data-key="post"><div><h4>After commit</h4><p>Queued asynchronous work starts, such as queueable and future Apex.</p></div></li>
+      </ol>
+      <p class="oe-note">Within a single step, Salesforce doesn’t guarantee the order of multiple Apex triggers on the same object and event, or of multiple processes. Record-triggered flows follow their trigger order: 1 to 1000 first, then flows with no trigger order, then 1001 to 2000. Flows with the same trigger order run in alphabetical order of their API names.</p>
+    </div>
+  </section>
+
+  <section class="section" id="checks" aria-labelledby="checksTitle">
+    <div class="wrap">
+      <h2 id="checksTitle">What Org X-ray checks</h2>
+      <ul class="checks">
+        <li>Fields written by more than one automation, and which one wins.</li>
+        <li>Before-save flow values replaced by Apex before triggers.</li>
+        <li>Workflow field updates that make update triggers run a second time.</li>
+        <li>After-save flows and processes that update their own record and restart the save.</li>
+        <li>More than one Apex trigger on the same object.</li>
+        <li>Record-triggered flows without an explicit trigger order.</li>
+        <li>SOQL queries and DML statements inside loops.</li>
+        <li>Apex classes declared <code>without sharing</code>.</li>
+        <li>Dynamic SOQL built by joining strings, which can allow SOQL injection.</li>
+        <li>Hardcoded record IDs in Apex.</li>
+        <li>Legacy workflow rules and processes that should move to flows.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="faq" aria-labelledby="faqTitle">
+    <div class="wrap">
+      <h2 id="faqTitle">Frequently asked questions</h2>
+      <div class="faq">
+        <details open><summary>What is the Salesforce order of execution?</summary><p>It is the fixed sequence Salesforce follows when a record is saved: system validation, before-save flows, before triggers, validation rules, duplicate rules, the save itself, after triggers, assignment and auto-response rules, workflow rules, processes, after-save flows, roll-up summaries, sharing, commit, and finally post-commit work such as emails and asynchronous Apex.</p></details>
+        <details><summary>Is my Salesforce metadata uploaded anywhere?</summary><p>No. Org X-ray reads your zip file inside your own browser with JavaScript. Nothing is uploaded, stored or sent to any server, so you can safely use it on client orgs.</p></details>
+        <details><summary>Why does my before-save flow value get overwritten?</summary><p>Before-save flows run before Apex before triggers. If a trigger sets the same field, the trigger’s value replaces the flow’s value. Org X-ray marks these fields as conflicts and shows which automation wins.</p></details>
+        <details><summary>Which metadata types does Org X-ray read?</summary><p>Apex triggers and classes, record-triggered flows, Process Builder processes, workflow rules and field updates, validation rules, roll-up summary fields, duplicate rules, and assignment, auto-response and escalation rules, in both Metadata API and Salesforce DX source format.</p></details>
+        <details><summary>In what order do multiple record-triggered flows run?</summary><p>Flows with a trigger order from 1 to 1000 run first, in that order. Flows with no trigger order run next, then flows with a trigger order from 1001 to 2000. Flows with the same trigger order run in alphabetical order of their API names.</p></details>
+        <details><summary>Is Org X-ray free?</summary><p>Yes. The replay, findings and documentation export are free to use.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <p>Org X-ray is a free tool from <a href="/">Titrova</a>, built by <a href="https://vinayraj-dev.github.io/" rel="author">Kappa Vinay</a>, Salesforce &amp; Full Stack Developer.</p>
+    <p>Field changes in Apex are detected by reading the code, so treat them as strong hints rather than proof. Always confirm with a debug log in a sandbox.</p>
+    <p>Salesforce, Apex and Flow are trademarks of Salesforce, Inc. Org X-ray is not affiliated with or endorsed by Salesforce.</p>
+  </div>
+</footer>
+
+<dialog class="detail" id="detail" aria-labelledby="detailTitle"><div class="detail-inner" id="detailInner"></div></dialog>
+
+<div class="nowbar" id="nowbar" aria-hidden="true">
+  <div class="np-text"><div class="np-step" id="npStep"></div><div class="np-change" id="npChange"></div></div>
+  <button class="fbtn play" id="npPlay" type="button" tabindex="-1">Pause</button>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ---------- small helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uniq = a => [...new Set(a)];
+const clip = (s, n) => { s = String(s ?? '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const VERB = { insert: 'created', update: 'updated', delete: 'deleted' };
+
+/* ---------- steps come from the static reference list, so page text and replay never drift ---------- */
+function readSteps(listId) {
+  return $$('#' + listId + ' > li').map((li, i, all) => {
+    const subIndex = all.slice(0, i + 1).filter(x => !x.classList.contains('sub')).length;
+    return {
+      key: li.dataset.key,
+      n: li.classList.contains('sub') ? subIndex + 'a' : String(subIndex),
+      title: $('h4', li).textContent.trim(),
+      desc: $('p', li).textContent.trim(),
+      system: li.dataset.system === '1',
+      conditional: li.dataset.conditional === '1'
+    };
+  });
+}
+const SAVE_STEPS = readSteps('oeSave');
+const DELETE_STEPS = readSteps('oeDelete');
+
+/* ---------- XML helpers (namespace-safe, direct children only) ---------- */
+function xml(text) {
+  const doc = new DOMParser().parseFromString(text, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) return null;
+  return doc.documentElement;
+}
+function kids(el, name) { const out = []; if (!el) return out; for (const c of el.children) if (c.localName === name) out.push(c); return out; }
+function kid(el, name) { if (!el) return null; for (const c of el.children) if (c.localName === name) return c; return null; }
+function kt(el, name) { const k = kid(el, name); return k ? k.textContent.trim() : ''; }
+function valueText(v) {
+  if (!v) return '';
+  for (const n of ['stringValue', 'numberValue', 'booleanValue', 'dateValue', 'dateTimeValue']) {
+    const k = kid(v, n);
+    if (k) { let t = k.textContent.trim(); if (n === 'numberValue') t = t.replace(/\.0+$/, ''); if (n === 'stringValue') t = '"' + t + '"'; return t; }
+  }
+  const ref = kid(v, 'elementReference');
+  if (ref) return '{!' + ref.textContent.trim() + '}';
+  return '';
+}
+const OPS = { EqualTo: 'equals', NotEqualTo: 'does not equal', GreaterThan: '>', GreaterThanOrEqualTo: '≥', LessThan: '<', LessThanOrEqualTo: '≤', Contains: 'contains', StartsWith: 'starts with', EndsWith: 'ends with', IsNull: 'is null', IsChanged: 'is changed', In: 'in', NotIn: 'not in', WasSet: 'was set', WasSelected: 'was selected' };
+
+/* ---------- metadata file classification ---------- */
+const TYPES = [
+  [/\.trigger-meta\.xml$/i, 'triggerMeta'], [/\.trigger$/i, 'trigger'], [/\.cls$/i, 'class'],
+  [/\.flow(-meta\.xml)?$/i, 'flow'], [/\.validationRule(-meta\.xml)?$/i, 'validationRule'],
+  [/\.field(-meta\.xml)?$/i, 'field'], [/\.object(-meta\.xml)?$/i, 'object'],
+  [/\.workflow(-meta\.xml)?$/i, 'workflow'], [/\.duplicateRule(-meta\.xml)?$/i, 'duplicateRule'],
+  [/\.assignmentRules(-meta\.xml)?$/i, 'assignmentRules'], [/\.autoResponseRules(-meta\.xml)?$/i, 'autoResponseRules'],
+  [/\.escalationRules(-meta\.xml)?$/i, 'escalationRules'], [/\.zip$/i, 'zip']
+];
+function classify(path) {
+  const p = path.replace(/\\/g, '/');
+  const base = p.split('/').pop();
+  if (/(^|\/)__MACOSX\//.test(p) || base.startsWith('._')) return null;
+  for (const [re, t] of TYPES) if (re.test(base)) return t;
+  return null;
+}
+const stemOf = base => base.replace(/\.(trigger|cls|flow|validationRule|field|object|workflow|duplicateRule|assignmentRules|autoResponseRules|escalationRules)(-meta\.xml)?$/i, '');
+function objectFromPath(path) {
+  const seg = path.replace(/\\/g, '/').split('/');
+  const i = seg.lastIndexOf('objects');
+  return i >= 0 && seg[i + 1] ? seg[i + 1] : null;
+}
+
+/* ---------- parser ---------- */
+function emptyObject(name) {
+  return { name, triggers: [], flows: [], processes: [], validationRules: [], workflowRules: [], duplicateRules: [], assignmentRules: [], autoResponseRules: [], escalationRules: [], rollups: [], fields: new Set() };
+}
+
+function parseFlow(text, stem) {
+  const root = xml(text);
+  if (!root) return null;
+  const processType = kt(root, 'processType');
+  const status = kt(root, 'status') || 'Active';
+  const label = kt(root, 'label') || stem;
+
+  if (processType === 'Workflow') {
+    const meta = {};
+    kids(root, 'processMetadataValues').forEach(p => { meta[kt(p, 'name')] = valueText(kid(p, 'value')).replace(/^"|"$/g, ''); });
+    if (!meta.ObjectType) return null;
+    const writes = [];
+    kids(root, 'recordUpdates').forEach(ru => {
+      if (/_current$/.test(kt(ru, 'inputReference'))) kids(ru, 'inputAssignments').forEach(ia => writes.push({ field: kt(ia, 'field'), value: valueText(kid(ia, 'value')) }));
+    });
+    return { kind: 'process', name: stem, label, object: meta.ObjectType, status, onCreateOnly: meta.TriggerType === 'onCreateOnly', writes, updatesRecord: writes.length > 0, creates: kids(root, 'recordCreates').length, actions: kids(root, 'actionCalls').map(a => ({ label: kt(a, 'label') || kt(a, 'name'), type: kt(a, 'actionType') })) };
+  }
+
+  const start = kid(root, 'start');
+  if (!start) return null;
+  const object = kt(start, 'object');
+  const tt = kt(start, 'triggerType');
+  if (!object || !/^Record(BeforeSave|AfterSave|BeforeDelete)$/.test(tt)) return null;
+  const timing = tt === 'RecordBeforeSave' ? 'before' : tt === 'RecordAfterSave' ? 'after' : 'beforeDelete';
+  const orderTxt = kt(root, 'triggerOrder');
+  const filters = kids(start, 'filters').map(f => {
+    const op = kt(f, 'operator'), v = valueText(kid(f, 'value'));
+    if (op === 'IsNull') return kt(f, 'field') + (v === 'false' ? ' is not null' : ' is null');
+    if (op === 'IsChanged') return kt(f, 'field') + (v === 'false' ? ' is not changed' : ' is changed');
+    return [kt(f, 'field'), OPS[op] || op, v].filter(Boolean).join(' ');
+  });
+  const logic = kt(start, 'filterLogic');
+  const formula = kt(start, 'filterFormula');
+  let entry = '';
+  if (formula) entry = formula;
+  else if (filters.length) entry = (!logic || /^(and|or)$/i.test(logic)) ? filters.join(/^or$/i.test(logic) ? ' OR ' : ' AND ') : filters.map((f, i) => (i + 1) + '. ' + f).join('; ') + ' (logic: ' + logic + ')';
+
+  const writes = [];
+  kids(root, 'assignments').forEach(a => kids(a, 'assignmentItems').forEach(ai => {
+    const m = /^\$Record\.(\w+)$/.exec(kt(ai, 'assignToReference'));
+    if (m) writes.push({ field: m[1], value: valueText(kid(ai, 'value')), via: kt(a, 'label') || kt(a, 'name') });
+  }));
+  let ownUpdate = false, otherUpdates = 0;
+  kids(root, 'recordUpdates').forEach(ru => {
+    if (kt(ru, 'inputReference') === '$Record') {
+      ownUpdate = true;
+      kids(ru, 'inputAssignments').forEach(ia => writes.push({ field: kt(ia, 'field'), value: valueText(kid(ia, 'value')), via: kt(ru, 'label') || kt(ru, 'name') }));
+    } else otherUpdates++;
+  });
+  const asyncPaths = kids(start, 'scheduledPaths').map(sp => ({
+    label: kt(sp, 'label') || kt(sp, 'name') || 'Async path',
+    type: kt(sp, 'pathType') === 'AsyncAfterCommit' ? 'async' : 'scheduled',
+    offset: kt(sp, 'offsetNumber') ? [kt(sp, 'offsetNumber'), (kt(sp, 'offsetUnit') || '').toLowerCase(), kt(sp, 'timeSource') ? 'from ' + kt(sp, 'timeSource') : ''].join(' ').trim() : ''
+  }));
+  return {
+    kind: 'flow', name: stem, label, object, status, timing,
+    recordTriggerType: kt(start, 'recordTriggerType') || (timing === 'beforeDelete' ? 'Delete' : ''),
+    order: orderTxt ? parseInt(orderTxt, 10) : null,
+    entry, onlyWhenChanged: kt(start, 'doesRequireRecordChangedToMeetCriteria') === 'true',
+    writes, updatesRecord: timing === 'after' && ownUpdate, asyncPaths,
+    actions: kids(root, 'actionCalls').map(a => ({ label: kt(a, 'label') || kt(a, 'name'), type: kt(a, 'actionType') })),
+    creates: kids(root, 'recordCreates').length, otherUpdates, deletes: kids(root, 'recordDeletes').length, subflows: kids(root, 'subflows').length
+  };
+}
+
+function parseFiles(files, label) {
+  const org = { label, objects: {}, classes: {}, initial: {}, fileCount: files.length };
+  const obj = n => (org.objects[n] = org.objects[n] || emptyObject(n));
+  const triggerStatus = {};
+  const summaries = [];
+  const fieldInfo = (el, objName, nameFallback) => {
+    const name = kt(el, 'fullName') || nameFallback;
+    if (!name) return;
+    obj(objName).fields.add(name);
+    if (kt(el, 'type') === 'Summary') summaries.push({ parent: objName, field: name, fk: kt(el, 'summaryForeignKey'), op: kt(el, 'summaryOperation') || 'count', summarized: kt(el, 'summarizedField') });
+  };
+  const vr = (el, objName, nameFallback) => obj(objName).validationRules.push({
+    kind: 'validation', name: kt(el, 'fullName') || nameFallback, active: kt(el, 'active') === 'true',
+    formula: kt(el, 'errorConditionFormula'), message: kt(el, 'errorMessage'), field: kt(el, 'errorDisplayField')
+  });
+
+  for (const f of files) {
+    const base = f.path.replace(/\\/g, '/').split('/').pop();
+    const stem = stemOf(base);
+    try {
+      if (f.type === 'trigger') {
+        const m = /\btrigger\s+(\w+)\s+on\s+(\w+)\s*\(([^)]*)\)/i.exec(stripComments(f.text));
+        if (m) obj(m[2]).triggers.push({ kind: 'trigger', name: m[1], object: m[2], events: m[3].split(',').map(s => s.trim().toLowerCase().replace(/\s+/g, ' ')).filter(Boolean), body: f.text, active: true });
+      } else if (f.type === 'triggerMeta') {
+        const root = xml(f.text); if (root) triggerStatus[stem] = kt(root, 'status');
+      } else if (f.type === 'class') {
+        org.classes[stem] = f.text;
+      } else if (f.type === 'flow') {
+        const fl = parseFlow(f.text, stem);
+        if (fl) (fl.kind === 'process' ? obj(fl.object).processes : obj(fl.object).flows).push(fl);
+      } else if (f.type === 'validationRule') {
+        const root = xml(f.text); const o = objectFromPath(f.path);
+        if (root && o) vr(root, o, stem);
+      } else if (f.type === 'field') {
+        const root = xml(f.text); const o = objectFromPath(f.path);
+        if (root && o) fieldInfo(root, o, stem);
+      } else if (f.type === 'object') {
+        const root = xml(f.text); if (!root) continue;
+        kids(root, 'validationRules').forEach(v => vr(v, stem));
+        kids(root, 'fields').forEach(fl => fieldInfo(fl, stem));
+      } else if (f.type === 'workflow') {
+        const root = xml(f.text); if (!root) continue;
+        const fus = {};
+        kids(root, 'fieldUpdates').forEach(fu => {
+          fus[kt(fu, 'fullName')] = { field: kt(fu, 'field'), value: kt(fu, 'literalValue') || kt(fu, 'formula') || (kt(fu, 'operation') === 'Null' ? '(blank)' : kt(fu, 'operation')), target: kt(fu, 'targetObject'), label: kt(fu, 'name') };
+        });
+        kids(root, 'rules').forEach(r => {
+          const writes = [], other = [];
+          kids(r, 'actions').forEach(a => {
+            const n = kt(a, 'name'), ty = kt(a, 'type');
+            if (ty === 'FieldUpdate' && fus[n] && !fus[n].target) writes.push({ field: fus[n].field, value: fus[n].value, via: fus[n].label || n });
+            else other.push((ty === 'FieldUpdate' ? 'Cross-object field update' : ty.replace(/([a-z])([A-Z])/g, '$1 $2')) + ': ' + n);
+          });
+          const criteria = kt(r, 'formula') || kids(r, 'criteriaItems').map(c => [kt(c, 'field'), kt(c, 'operation'), kt(c, 'value')].join(' ')).join(' AND ');
+          obj(stem).workflowRules.push({ kind: 'workflow', name: kt(r, 'fullName'), active: kt(r, 'active') === 'true', triggerType: kt(r, 'triggerType'), criteria, writes, otherActions: other, timeTriggers: kids(r, 'workflowTimeTriggers').length });
+        });
+      } else if (f.type === 'duplicateRule') {
+        const root = xml(f.text); if (!root) continue;
+        const parts = stem.split('.');
+        obj(parts[0]).duplicateRules.push({ kind: 'duplicate', name: kt(root, 'masterLabel') || parts.slice(1).join('.'), active: kt(root, 'isActive') === 'true', onInsert: kt(root, 'actionOnInsert'), onUpdate: kt(root, 'actionOnUpdate') });
+      } else if (f.type === 'assignmentRules' || f.type === 'autoResponseRules' || f.type === 'escalationRules') {
+        const root = xml(f.text); if (!root) continue;
+        const child = { assignmentRules: 'assignmentRule', autoResponseRules: 'autoResponseRule', escalationRules: 'escalationRule' }[f.type];
+        const kind = { assignmentRules: 'assignment', autoResponseRules: 'autoresponse', escalationRules: 'escalation' }[f.type];
+        kids(root, child).forEach(r => obj(stem)[f.type].push({ kind, name: kt(r, 'fullName'), active: kt(r, 'active') === 'true' }));
+      }
+    } catch (err) { console.warn('Skipped', f.path, err); }
+  }
+
+  Object.values(org.objects).forEach(o => o.triggers.forEach(t => { if (triggerStatus[t.name] === 'Inactive') t.active = false; }));
+  summaries.forEach(s => { const child = (s.fk || '').split('.')[0]; if (child) obj(child).rollups.push({ kind: 'rollup', name: s.parent + '.' + s.field, ...s }); });
+  analyseApex(org);
+  return org;
+}
+
+/* ---------- Apex reading ---------- */
+const STD_FIELDS = new Set('Name Amount StageName CloseDate Probability Description OwnerId Status Priority Rating Type Industry LeadSource NextStep Subject Origin Reason Phone Email Title BillingCountry BillingState BillingCity BillingPostalCode ShippingCountry ShippingState AnnualRevenue NumberOfEmployees ForecastCategoryName IsPrivate Website FirstName LastName Company AccountId ContactId RecordTypeId ParentId'.split(' '));
+const NOT_RECORDS = new Set(['this', 'super', 'Trigger', 'System', 'Schema', 'Database', 'Test', 'Limits', 'UserInfo']);
+
+function stripComments(code) { return code.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' '); }
+
+function apexWrites(code, fieldSet) {
+  const out = new Map();
+  const re = /\b([A-Za-z_]\w*)\.([A-Za-z_]\w*)\s*=(?!=)\s*([^;]{0,90})/g;
+  let m;
+  while ((m = re.exec(code))) {
+    const [, v, f, val] = m;
+    if (NOT_RECORDS.has(v)) continue;
+    const custom = /__c$/i.test(f);
+    if (custom && fieldSet.size && !fieldSet.has(f)) continue;
+    if (!custom && !STD_FIELDS.has(f)) continue;
+    if (!out.has(f)) out.set(f, { field: f, value: clip(val, 42), heuristic: true });
+  }
+  return [...out.values()];
+}
+
+function loopIssues(c) {
+  let soql = false, dml = false;
+  const re = /\b(for|while)\s*\(/g;
+  let m;
+  while ((m = re.exec(c))) {
+    let i = m.index + m[0].length, depth = 1;
+    while (i < c.length && depth > 0) { if (c[i] === '(') depth++; else if (c[i] === ')') depth--; i++; }
+    while (i < c.length && /\s/.test(c[i])) i++;
+    let body;
+    if (c[i] === '{') {
+      let d = 1, j = i + 1;
+      while (j < c.length && d > 0) { if (c[j] === '{') d++; else if (c[j] === '}') d--; j++; }
+      body = c.slice(i + 1, j - 1);
+    } else {
+      const j = c.indexOf(';', i);
+      body = c.slice(i, j < 0 ? c.length : j + 1);
+    }
+    if (/\[\s*SELECT\b/i.test(body) || /Database\.query\s*\(/i.test(body)) soql = true;
+    if (/(^|[\s;{}])(insert|update|delete|upsert|undelete|merge)\s+[A-Za-z_][\w.]*\s*;/i.test(body) || /(^|[\s;{}])(insert|update|upsert)\s+new\s+\w+\s*\(/i.test(body) || /Database\.(insert|update|delete|upsert|undelete|merge)\s*\(/i.test(body)) dml = true;
+  }
+  return { soql, dml };
+}
+
+const RISK_TEXT = {
+  soqlLoop: { title: 'SOQL query inside a loop', why: 'Each pass of the loop runs a query, so a data load of a few hundred records can hit the limit of 100 queries per transaction.', fix: 'Query once before the loop and look records up in a map.' },
+  dmlLoop: { title: 'DML inside a loop', why: 'Each pass of the loop saves records separately, which can hit the limit of 150 DML statements per transaction.', fix: 'Collect records in a list and save them once after the loop.' },
+  withoutSharing: { title: 'Apex runs without sharing', why: 'The class ignores the running user’s record access, so users can read or change records they shouldn’t see.', fix: 'Use with sharing or inherited sharing unless the class truly needs system access, and document why.' },
+  dynamicSoql: { title: 'Dynamic SOQL built by joining strings', why: 'Joining values into a query string can allow SOQL injection if any value comes from a user.', fix: 'Use bind variables such as :value, or wrap values in String.escapeSingleQuotes.' },
+  hardcodedId: { title: 'Hardcoded record IDs', why: 'Record IDs differ between sandboxes and production, so this code behaves differently after deployment.', fix: 'Look records up by a stable value, or store IDs in custom metadata or custom settings.' }
+};
+
+function scanApex(code) {
+  const c = stripComments(code);
+  const risks = [];
+  const loops = loopIssues(c);
+  if (loops.soql) risks.push('soqlLoop');
+  if (loops.dml) risks.push('dmlLoop');
+  if (/\bwithout\s+sharing\b/i.test(c)) risks.push('withoutSharing');
+  if (/Database\.(query|countQuery|getQueryLocator)\s*\(/i.test(c) && /SELECT\b[^;]*'\s*\+\s*[A-Za-z_(]/i.test(c) && !/escapeSingleQuotes/.test(c)) risks.push('dynamicSoql');
+  const ids = (c.match(/'(?:0[0-9A-Za-z]{2}|a[0-9A-Za-z]{2})[0-9A-Za-z]{12}(?:[0-9A-Za-z]{3})?'/g) || []).filter(s => (s.match(/\d/g) || []).length >= 3);
+  if (ids.length) risks.push('hardcodedId');
+  return risks;
+}
+
+function analyseApex(org) {
+  const names = Object.keys(org.classes).filter(n => !/@isTest/i.test(org.classes[n]));
+  const res = names.map(n => [n, new RegExp('\\b' + n + '\\b')]);
+  const scope = code => {
+    const seen = new Set();
+    let frontier = [stripComments(code)];
+    for (let d = 0; d < 2 && frontier.length; d++) {
+      const next = [];
+      for (const c of frontier) for (const [n, re] of res) if (!seen.has(n) && re.test(c)) { seen.add(n); next.push(stripComments(org.classes[n])); }
+      frontier = next;
+    }
+    return [...seen];
+  };
+  org.classRisks = {};
+  names.forEach(n => { org.classRisks[n] = scanApex(org.classes[n]); });
+  Object.values(org.objects).forEach(o => o.triggers.forEach(t => {
+    t.classes = scope(t.body);
+    const all = stripComments(t.body) + '\n' + t.classes.map(n => stripComments(org.classes[n])).join('\n');
+    t.writes = apexWrites(all, o.fields);
+    t.async = uniq([
+      /System\.enqueueJob/.test(all) && 'queueable Apex',
+      /@future/i.test(all) && 'future method',
+      /Database\.executeBatch/.test(all) && 'batch Apex',
+      /EventBus\.publish/.test(all) && 'platform event'
+    ].filter(Boolean));
+    t.risks = scanApex(t.body);
+  }));
+}
+
+/* ---------- demo org: real metadata files run through the same parser ---------- */
+const NS = 'xmlns="http://soap.sforce.com/2006/04/metadata"';
+const D = 'force-app/main/default/';
+const DEMO_FILES = {
+  [D + 'triggers/OpportunityTrigger.trigger']:
+`trigger OpportunityTrigger on Opportunity (before insert, before update, after insert, after update) {
+    OpportunityTriggerHandler.run(Trigger.new, Trigger.oldMap, Trigger.operationType);
+}`,
+  [D + 'triggers/OpportunityTrigger.trigger-meta.xml']: `<?xml version="1.0" encoding="UTF-8"?><ApexTrigger ${NS}><apiVersion>62.0</apiVersion><status>Active</status></ApexTrigger>`,
+  [D + 'classes/OpportunityTriggerHandler.cls']:
+`public with sharing class OpportunityTriggerHandler {
+    public static void run(List<Opportunity> records, Map<Id, Opportunity> oldMap, System.TriggerOperation op) {
+        switch on op {
+            when BEFORE_INSERT, BEFORE_UPDATE {
+                applyDiscountPolicy(records);
+            }
+            when AFTER_INSERT, AFTER_UPDATE {
+                System.enqueueJob(new ErpSyncQueueable(records));
+            }
+        }
+    }
+
+    // Finance rule: discounts only stick once a deal is approved.
+    static void applyDiscountPolicy(List<Opportunity> records) {
+        for (Opportunity opp : records) {
+            if (opp.Approval_Status__c != 'Approved') {
+                opp.Discount__c = 0;
+            }
+            opp.Next_Review_Date__c = Date.today().addDays(30);
+        }
+    }
+}`,
+  [D + 'classes/ErpSyncQueueable.cls']:
+`public without sharing class ErpSyncQueueable implements Queueable, Database.AllowsCallouts {
+    private List<Opportunity> records;
+
+    public ErpSyncQueueable(List<Opportunity> records) {
+        this.records = records;
+    }
+
+    public void execute(QueueableContext ctx) {
+        String region = records[0].Region__c;
+        String soql = 'SELECT Id, Amount FROM Opportunity WHERE Region__c = \\'' + region + '\\'';
+        List<Opportunity> peers = Database.query(soql);
+        // Send the batch to the ERP system...
+    }
+}`,
+  [D + 'triggers/OpportunityAuditTrigger.trigger']:
+`trigger OpportunityAuditTrigger on Opportunity (after update) {
+    List<Opportunity_Audit__c> audits = new List<Opportunity_Audit__c>();
+    for (Opportunity opp : Trigger.new) {
+        audits.add(new Opportunity_Audit__c(Opportunity__c = opp.Id, Amount__c = opp.Amount));
+    }
+    insert audits;
+}`,
+  [D + 'triggers/AccountTrigger.trigger']:
+`trigger AccountTrigger on Account (before insert, before update, after update) {
+    if (Trigger.isBefore) {
+        AccountRatingService.setRating(Trigger.new);
+    }
+}`,
+  [D + 'classes/AccountRatingService.cls']:
+`public with sharing class AccountRatingService {
+    public static void setRating(List<Account> accounts) {
+        for (Account acc : accounts) {
+            Integer openDeals = [SELECT COUNT() FROM Opportunity WHERE AccountId = :acc.Id AND IsClosed = false];
+            acc.Rating = openDeals > 5 ? 'Hot' : 'Warm';
+            if (acc.OwnerId == '005000000000001AAA') {
+                acc.Rating = 'Hot';
+            }
+        }
+    }
+}`,
+  [D + 'triggers/CaseTrigger.trigger']:
+`trigger CaseTrigger on Case (before insert) {
+    for (Case c : Trigger.new) {
+        if (c.Priority == null) {
+            c.Priority = 'Medium';
+        }
+    }
+}`,
+  [D + 'flows/Opportunity_Apply_Tier_Discount.flow-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?>
+<Flow ${NS}>
+  <apiVersion>62.0</apiVersion>
+  <assignments>
+    <name>Set_Tier_Discount</name><label>Set Tier Discount</label>
+    <assignmentItems><assignToReference>$Record.Discount__c</assignToReference><operator>Assign</operator><value><numberValue>12.0</numberValue></value></assignmentItems>
+    <assignmentItems><assignToReference>$Record.Region__c</assignToReference><operator>Assign</operator><value><elementReference>$Record.Account.Sales_Region__c</elementReference></value></assignmentItems>
+  </assignments>
+  <label>Opportunity: Apply Tier Discount</label>
+  <processType>AutoLaunchedFlow</processType>
+  <start>
+    <object>Opportunity</object>
+    <recordTriggerType>CreateAndUpdate</recordTriggerType>
+    <triggerType>RecordBeforeSave</triggerType>
+    <filterLogic>and</filterLogic>
+    <filters><field>Amount</field><operator>GreaterThanOrEqualTo</operator><value><numberValue>100000.0</numberValue></value></filters>
+  </start>
+  <status>Active</status>
+  <triggerOrder>10</triggerOrder>
+</Flow>`,
+  [D + 'flows/Opportunity_Notify_Finance.flow-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?>
+<Flow ${NS}>
+  <actionCalls><name>Email_Finance</name><label>Email Finance</label><actionName>Opportunity.Large_Deal_Alert</actionName><actionType>emailAlert</actionType></actionCalls>
+  <label>Opportunity: Notify Finance on Large Deals</label>
+  <processType>AutoLaunchedFlow</processType>
+  <start>
+    <object>Opportunity</object>
+    <recordTriggerType>Update</recordTriggerType>
+    <triggerType>RecordAfterSave</triggerType>
+    <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+    <filterLogic>and</filterLogic>
+    <filters><field>Amount</field><operator>GreaterThanOrEqualTo</operator><value><numberValue>100000.0</numberValue></value></filters>
+    <scheduledPaths><name>Sync_to_Billing</name><label>Sync to Billing</label><pathType>AsyncAfterCommit</pathType></scheduledPaths>
+  </start>
+  <status>Active</status>
+  <triggerOrder>20</triggerOrder>
+</Flow>`,
+  [D + 'flows/Opportunity_Set_Close_Reason.flow-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?>
+<Flow ${NS}>
+  <label>Opportunity: Set Close Reason</label>
+  <processType>AutoLaunchedFlow</processType>
+  <recordUpdates>
+    <name>Stamp_Close_Reason</name><label>Stamp Close Reason</label>
+    <inputAssignments><field>Close_Reason__c</field><value><stringValue>Volume tier</stringValue></value></inputAssignments>
+    <inputReference>$Record</inputReference>
+  </recordUpdates>
+  <start>
+    <object>Opportunity</object>
+    <recordTriggerType>Update</recordTriggerType>
+    <triggerType>RecordAfterSave</triggerType>
+    <filterLogic>and</filterLogic>
+    <filters><field>StageName</field><operator>EqualTo</operator><value><stringValue>Closed Won</stringValue></value></filters>
+  </start>
+  <status>Active</status>
+</Flow>`,
+  [D + 'flows/Opportunity_Stage_History.flow-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?>
+<Flow ${NS}>
+  <label>Opportunity Stage History</label>
+  <processMetadataValues><name>ObjectType</name><value><stringValue>Opportunity</stringValue></value></processMetadataValues>
+  <processMetadataValues><name>TriggerType</name><value><stringValue>onAllChanges</stringValue></value></processMetadataValues>
+  <processType>Workflow</processType>
+  <recordCreates><name>myRule_1_A1</name><label>Log stage change</label><object>Task</object></recordCreates>
+  <status>Active</status>
+</Flow>`,
+  [D + 'flows/Account_Normalize_Country.flow-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?>
+<Flow ${NS}>
+  <assignments>
+    <name>Normalize</name><label>Normalize Country</label>
+    <assignmentItems><assignToReference>$Record.BillingCountry</assignToReference><operator>Assign</operator><value><elementReference>NormalizedCountry</elementReference></value></assignmentItems>
+  </assignments>
+  <label>Account: Normalize Country</label>
+  <processType>AutoLaunchedFlow</processType>
+  <start>
+    <object>Account</object>
+    <recordTriggerType>CreateAndUpdate</recordTriggerType>
+    <triggerType>RecordBeforeSave</triggerType>
+  </start>
+  <status>Active</status>
+  <triggerOrder>10</triggerOrder>
+</Flow>`,
+  [D + 'flows/Case_Notify_Account_Owner.flow-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?>
+<Flow ${NS}>
+  <actionCalls><name>Email_Owner</name><label>Email Account Owner</label><actionName>emailSimple</actionName><actionType>emailSimple</actionType></actionCalls>
+  <label>Case: Notify Account Owner</label>
+  <processType>AutoLaunchedFlow</processType>
+  <start>
+    <object>Case</object>
+    <recordTriggerType>Create</recordTriggerType>
+    <triggerType>RecordAfterSave</triggerType>
+  </start>
+  <status>Active</status>
+  <triggerOrder>10</triggerOrder>
+</Flow>`,
+  [D + 'objects/Opportunity/validationRules/Discount_Cannot_Exceed_40.validationRule-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?><ValidationRule ${NS}><fullName>Discount_Cannot_Exceed_40</fullName><active>true</active><errorConditionFormula>Discount__c &gt; 40</errorConditionFormula><errorDisplayField>Discount__c</errorDisplayField><errorMessage>Discounts above 40% need a deal desk exception.</errorMessage></ValidationRule>`,
+  [D + 'objects/Opportunity/validationRules/Close_Date_Not_In_Past.validationRule-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?><ValidationRule ${NS}><fullName>Close_Date_Not_In_Past</fullName><active>true</active><errorConditionFormula>AND(ISCHANGED(CloseDate), CloseDate &lt; TODAY(), NOT(IsClosed))</errorConditionFormula><errorDisplayField>CloseDate</errorDisplayField><errorMessage>Close date can’t be moved into the past on an open deal.</errorMessage></ValidationRule>`,
+  [D + 'objects/Opportunity/validationRules/Old_Probability_Check.validationRule-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?><ValidationRule ${NS}><fullName>Old_Probability_Check</fullName><active>false</active><errorConditionFormula>Probability &lt; 10</errorConditionFormula><errorMessage>Probability is too low.</errorMessage></ValidationRule>`,
+  [D + 'objects/Account/validationRules/Billing_Country_Required.validationRule-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?><ValidationRule ${NS}><fullName>Billing_Country_Required</fullName><active>true</active><errorConditionFormula>ISBLANK(BillingCountry)</errorConditionFormula><errorDisplayField>BillingCountry</errorDisplayField><errorMessage>Add a billing country.</errorMessage></ValidationRule>`,
+  [D + 'objects/Opportunity/fields/Discount__c.field-meta.xml']: `<CustomField ${NS}><fullName>Discount__c</fullName><type>Percent</type></CustomField>`,
+  [D + 'objects/Opportunity/fields/Region__c.field-meta.xml']: `<CustomField ${NS}><fullName>Region__c</fullName><type>Text</type></CustomField>`,
+  [D + 'objects/Opportunity/fields/Next_Review_Date__c.field-meta.xml']: `<CustomField ${NS}><fullName>Next_Review_Date__c</fullName><type>Date</type></CustomField>`,
+  [D + 'objects/Opportunity/fields/Last_Reviewed__c.field-meta.xml']: `<CustomField ${NS}><fullName>Last_Reviewed__c</fullName><type>Date</type></CustomField>`,
+  [D + 'objects/Opportunity/fields/Close_Reason__c.field-meta.xml']: `<CustomField ${NS}><fullName>Close_Reason__c</fullName><type>Text</type></CustomField>`,
+  [D + 'objects/Opportunity/fields/Approval_Status__c.field-meta.xml']: `<CustomField ${NS}><fullName>Approval_Status__c</fullName><type>Picklist</type></CustomField>`,
+  [D + 'objects/Account/fields/Sales_Region__c.field-meta.xml']: `<CustomField ${NS}><fullName>Sales_Region__c</fullName><type>Text</type></CustomField>`,
+  [D + 'objects/Account/fields/Total_Open_Pipeline__c.field-meta.xml']: `<CustomField ${NS}><fullName>Total_Open_Pipeline__c</fullName><type>Summary</type><summaryForeignKey>Opportunity.AccountId</summaryForeignKey><summaryOperation>sum</summaryOperation><summarizedField>Opportunity.Amount</summarizedField></CustomField>`,
+  [D + 'workflows/Opportunity.workflow-meta.xml']:
+`<?xml version="1.0" encoding="UTF-8"?>
+<Workflow ${NS}>
+  <fieldUpdates><fullName>Stamp_Last_Reviewed</fullName><field>Last_Reviewed__c</field><formula>TODAY()</formula><name>Stamp Last Reviewed</name><operation>Formula</operation></fieldUpdates>
+  <rules><fullName>Stamp Last Reviewed Date</fullName><actions><name>Stamp_Last_Reviewed</name><type>FieldUpdate</type></actions><active>true</active><formula>ISCHANGED(Amount)</formula><triggerType>onCreateOrTriggeringUpdate</triggerType></rules>
+</Workflow>`,
+  [D + 'duplicateRules/Account.Standard_Account_Duplicate_Rule.duplicateRule-meta.xml']:
+`<DuplicateRule ${NS}><actionOnInsert>Allow</actionOnInsert><actionOnUpdate>Allow</actionOnUpdate><isActive>true</isActive><masterLabel>Standard Account Duplicate Rule</masterLabel></DuplicateRule>`,
+  [D + 'assignmentRules/Case.assignmentRules-meta.xml']: `<AssignmentRules ${NS}><assignmentRule><fullName>Support Queue Routing</fullName><active>true</active></assignmentRule></AssignmentRules>`,
+  [D + 'autoResponseRules/Case.autoResponseRules-meta.xml']: `<AutoResponseRules ${NS}><autoResponseRule><fullName>Web Case Reply</fullName><active>true</active></autoResponseRule></AutoResponseRules>`,
+  [D + 'escalationRules/Case.escalationRules-meta.xml']: `<EscalationRules ${NS}><escalationRule><fullName>Priority SLA</fullName><active>true</active></escalationRule></EscalationRules>`
+};
+const DEMO_INITIAL = {
+  Opportunity: { Discount__c: '10', Region__c: '"APAC"', Next_Review_Date__c: '2026-11-20', Last_Reviewed__c: '2026-10-02', Close_Reason__c: '(blank)' },
+  Account: { Rating: '"Warm"', BillingCountry: '"IN"' },
+  Case: { Priority: '(blank)' }
+};
+function buildDemo() {
+  const files = Object.entries(DEMO_FILES).map(([path, text]) => ({ path, text, type: classify(path) }));
+  const org = parseFiles(files, 'Demo org');
+  org.demo = true;
+  org.initial = DEMO_INITIAL;
+  return org;
+}
+
+/* ---------- timeline ---------- */
+const isActiveFlow = f => !f.status || f.status === 'Active';
+function flowRuns(f, op) {
+  if (!isActiveFlow(f)) return false;
+  if (op === 'delete') return f.timing === 'beforeDelete';
+  if (f.timing === 'beforeDelete') return false;
+  const t = f.recordTriggerType;
+  return op === 'insert' ? (t === 'Create' || t === 'CreateAndUpdate') : (t === 'Update' || t === 'CreateAndUpdate');
+}
+function sortFlows(list) {
+  const band = f => f.order == null ? 1 : (f.order <= 1000 ? 0 : 2);
+  return list.slice().sort((a, b) => band(a) - band(b) || (a.order ?? 0) - (b.order ?? 0) || a.name.localeCompare(b.name));
+}
+const fieldsSummary = writes => { const f = uniq(writes.map(w => w.field)); return f.length === 0 ? '' : f.length === 1 ? 'sets ' + f[0] : 'sets ' + f.length + ' fields'; };
+
+function automationCount(o) {
+  return o.triggers.filter(t => t.active).length + o.flows.filter(isActiveFlow).length + o.processes.filter(isActiveFlow).length +
+    o.validationRules.filter(v => v.active).length + o.workflowRules.filter(w => w.active).length + o.duplicateRules.filter(d => d.active).length +
+    o.assignmentRules.filter(r => r.active).length + o.autoResponseRules.filter(r => r.active).length + o.escalationRules.filter(r => r.active).length + o.rollups.length;
+}
+
+function buildTimeline(org, objName, op) {
+  const o = org.objects[objName] || emptyObject(objName);
+  const steps = op === 'delete' ? DELETE_STEPS : SAVE_STEPS;
+  const items = {};
+  const add = (k, it) => (items[k] = items[k] || []).push(it);
+  const trig = o.triggers.filter(t => t.active);
+
+  const flowItem = f => ({
+    kind: 'flow', id: 'flow:' + f.name, label: f.label, ref: f,
+    typeLabel: f.timing === 'after' ? 'After-save flow' : f.timing === 'before' ? 'Before-save flow' : 'Before-delete flow',
+    sub: [f.order != null ? 'order ' + f.order : 'no trigger order', fieldsSummary(f.writes), f.updatesRecord ? 'saves the record again' : ''].filter(Boolean).join(', '),
+    writes: f.writes, warn: f.updatesRecord
+  });
+  const trigItem = (t, ev, again) => {
+    const before = ev.startsWith('before') && op !== 'delete';
+    const writes = before ? t.writes : [];
+    return {
+      kind: 'trigger', id: 'trigger:' + t.name + ':' + ev + (again ? ':again' : ''), label: t.name, ref: t, typeLabel: 'Apex trigger',
+      histLabel: again ? t.name + ' (again)' : t.name, writerKey: 'trigger:' + t.name,
+      sub: [ev + (again ? ', runs again' : ''), fieldsSummary(writes), !before && t.async.length ? 'queues ' + t.async.join(', ') : ''].filter(Boolean).join(', '),
+      writes, warn: again
+    };
+  };
+
+  if (op === 'delete') {
+    sortFlows(o.flows.filter(f => flowRuns(f, op))).forEach(f => add('beforeDelete', flowItem(f)));
+    trig.filter(t => t.events.includes('before delete')).forEach(t => add('beforeDelete', trigItem(t, 'before delete')));
+    trig.filter(t => t.events.includes('after delete')).forEach(t => add('afterTriggers', trigItem(t, 'after delete')));
+  } else {
+    sortFlows(o.flows.filter(f => f.timing === 'before' && flowRuns(f, op))).forEach(f => add('beforeFlows', flowItem(f)));
+    trig.filter(t => t.events.includes('before ' + op)).forEach(t => add('beforeTriggers', trigItem(t, 'before ' + op)));
+    o.validationRules.filter(v => v.active).forEach(v => add('validation', { kind: 'validation', id: 'vr:' + v.name, label: v.name, ref: v, typeLabel: 'Validation rule', sub: clip(v.message, 46), writes: [] }));
+    o.duplicateRules.filter(d => d.active).forEach(d => add('duplicate', { kind: 'duplicate', id: 'dup:' + d.name, label: d.name, ref: d, typeLabel: 'Duplicate rule', sub: (op === 'insert' ? d.onInsert : d.onUpdate) ? (op === 'insert' ? d.onInsert : d.onUpdate).toLowerCase() + ' on ' + (op === 'insert' ? 'create' : 'update') : '', writes: [] }));
+    trig.filter(t => t.events.includes('after ' + op)).forEach(t => add('afterTriggers', trigItem(t, 'after ' + op)));
+    o.assignmentRules.filter(r => r.active).forEach(r => add('assignment', { kind: 'assignment', id: 'asg:' + r.name, label: r.name, ref: r, typeLabel: 'Assignment rule', sub: op === 'update' ? 'only if the save asks for it' : 'active rule', writes: [] }));
+    if (op === 'insert') o.autoResponseRules.filter(r => r.active).forEach(r => add('autoresponse', { kind: 'autoresponse', id: 'ar:' + r.name, label: r.name, ref: r, typeLabel: 'Auto-response rule', sub: 'active rule', writes: [] }));
+
+    const wfs = o.workflowRules.filter(w => w.active && !(op === 'update' && w.triggerType === 'onCreateOnly'));
+    wfs.forEach(w => add('workflow', { kind: 'workflow', id: 'wf:' + w.name, label: w.name, ref: w, typeLabel: 'Workflow rule', sub: [fieldsSummary(w.writes), w.otherActions.length ? w.otherActions.length + ' other action' + (w.otherActions.length > 1 ? 's' : '') : ''].filter(Boolean).join(', ') || 'no field updates', writes: w.writes, warn: true }));
+    if (wfs.some(w => w.writes.length)) {
+      trig.filter(t => t.events.includes('before update')).forEach(t => add('rerun', trigItem(t, 'before update', true)));
+      trig.filter(t => t.events.includes('after update')).forEach(t => add('rerun', trigItem(t, 'after update', true)));
+    }
+    o.escalationRules.filter(r => r.active).forEach(r => add('escalation', { kind: 'escalation', id: 'esc:' + r.name, label: r.name, ref: r, typeLabel: 'Escalation rule', sub: 'active rule', writes: [] }));
+    o.processes.filter(p => isActiveFlow(p) && !(op === 'update' && p.onCreateOnly)).forEach(p => add('processes', { kind: 'process', id: 'pb:' + p.name, label: p.label, ref: p, typeLabel: 'Process', sub: ['legacy process', fieldsSummary(p.writes), p.updatesRecord ? 'saves the record again' : ''].filter(Boolean).join(', '), writes: p.writes, warn: true }));
+    sortFlows(o.flows.filter(f => f.timing === 'after' && flowRuns(f, op))).forEach(f => add('afterFlows', flowItem(f)));
+  }
+
+  o.rollups.forEach(r => {
+    const parent = org.objects[r.parent];
+    const n = parent ? automationCount(parent) : 0;
+    add('rollup', { kind: 'rollup', id: 'ru:' + r.name, label: r.parent + '.' + r.field, ref: r, typeLabel: 'Roll-up summary', sub: [r.op + (r.summarized ? ' of ' + r.summarized.split('.').pop() : ''), n ? 'then ' + r.parent + ' saves with ' + n + ' automation' + (n > 1 ? 's' : '') : ''].filter(Boolean).join(', '), writes: [] });
+  });
+
+  // after-commit work
+  const firing = op === 'delete' ? trig.filter(t => t.events.includes('after delete') || t.events.includes('before delete')) : trig.filter(t => t.events.includes('after ' + op) || t.events.includes('before ' + op));
+  firing.filter(t => t.async.length).forEach(t => add('post', { kind: 'async', id: 'async:' + t.name, label: t.name, ref: t, typeLabel: 'Async Apex', sub: t.async.join(', ') + ' starts', writes: [] }));
+  if (op !== 'delete') {
+    sortFlows(o.flows.filter(f => f.timing === 'after' && flowRuns(f, op))).forEach(f => {
+      f.asyncPaths.forEach(p => add('post', { kind: 'flowpath', id: 'path:' + f.name + ':' + p.label, label: p.label, ref: f, typeLabel: 'Flow path', sub: p.type === 'async' ? 'async path of ' + f.label : 'scheduled ' + (p.offset || 'path') + ', ' + f.label, writes: [] }));
+      f.actions.filter(a => /email/i.test(a.type)).forEach(a => add('post', { kind: 'email', id: 'email:' + f.name + ':' + a.label, label: a.label, ref: f, typeLabel: 'Email', sub: 'sent after commit by ' + f.label, writes: [] }));
+    });
+    o.workflowRules.filter(w => w.active && w.timeTriggers).forEach(w => add('post', { kind: 'workflow', id: 'wft:' + w.name, label: w.name, ref: w, typeLabel: 'Time-based workflow', sub: w.timeTriggers + ' time trigger' + (w.timeTriggers > 1 ? 's' : '') + ' queued', writes: [] }));
+  }
+
+  return steps
+    .filter(s => !s.conditional || (items[s.key] && items[s.key].length))
+    .map(s => ({ ...s, items: items[s.key] || [] }));
+}
+
+function fieldHistory(stages) {
+  const map = new Map();
+  stages.forEach((s, si) => s.items.forEach(it => (it.writes || []).forEach(w => {
+    if (!map.has(w.field)) map.set(w.field, []);
+    map.get(w.field).push({ si, item: it, value: w.value, heuristic: !!w.heuristic, who: it.histLabel || it.label, writer: it.writerKey || it.id });
+  })));
+  return map;
+}
+const isConflict = h => uniq(h.map(x => x.writer)).length > 1;
+const andList = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+
+/* ---------- findings ---------- */
+function buildFindings(org, objName, op, stages, hist) {
+  const o = org.objects[objName] || emptyObject(objName);
+  const out = [];
+  for (const [field, h] of hist) {
+    if (!isConflict(h)) continue;
+    const order = h.map(x => x.who + (x.value ? ' = ' + x.value : '')).join(', then ');
+    const last = h[h.length - 1];
+    const flowThenTrigger = h.some(x => x.item.kind === 'flow' && x.item.ref.timing === 'before') && h.some(x => x.item.kind === 'trigger');
+    out.push({
+      sev: 'conflict', title: field + ' is set by ' + uniq(h.map(x => x.writer)).length + ' automations',
+      body: 'In order: ' + order + '. The last one, ' + last.item.label + ', wins.',
+      fix: flowThenTrigger ? 'Before-save flows run before Apex before triggers, so the trigger’s value replaces the flow’s. Keep this logic in one place, or have the trigger skip records the flow already handled.' : 'Give this field one owner. Move the logic into a single automation, or add entry conditions so only one of them runs.'
+    });
+  }
+  const rerun = stages.find(s => s.key === 'rerun');
+  if (rerun) {
+    const wfNames = (stages.find(s => s.key === 'workflow')?.items || []).filter(i => i.writes.length).map(i => i.label);
+    out.push({ sev: 'risk', title: 'Update triggers run twice in one save', body: 'Workflow field updates (' + andList(wfNames) + ') make ' + andList(uniq(rerun.items.map(i => i.label))) + ' fire again in the same transaction. Anything they do, such as inserting records or calling out, happens twice.', fix: 'Make trigger logic safe to repeat, for example with a static flag that skips records already handled, or move the field update into a before-save flow.' });
+  }
+  stages.forEach(s => s.items.filter(i => (i.kind === 'flow' || i.kind === 'process') && i.ref.updatesRecord).forEach(i => {
+    out.push({ sev: 'risk', title: i.label + ' saves the record again', body: 'It updates the record that started it after the save, so triggers, flows and validation rules run again.', fix: 'Move these field updates into a before-save flow. It’s faster and doesn’t restart the save.' });
+  }));
+  const active = o.triggers.filter(t => t.active);
+  if (active.length > 1) out.push({ sev: 'risk', title: active.length + ' Apex triggers on ' + objName, body: active.map(t => t.name).join(', ') + '. When several triggers handle the same event, Salesforce doesn’t guarantee which runs first.', fix: 'Use one trigger per object that calls a handler class, so the order is explicit.' });
+
+  ['beforeFlows', 'afterFlows', 'beforeDelete'].forEach(k => {
+    const fl = (stages.find(s => s.key === k)?.items || []).filter(i => i.kind === 'flow');
+    const noOrder = fl.filter(i => i.ref.order == null);
+    if (fl.length > 1 && noOrder.length) out.push({ sev: 'note', title: 'Some flows have no trigger order', body: noOrder.map(i => i.label).join(', ') + ' share this step with other flows but have no trigger order set.', fix: 'Set a trigger order on each record-triggered flow so the sequence is explicit.' });
+  });
+
+  const legacy = [...o.workflowRules.filter(w => w.active).map(w => w.name), ...o.processes.filter(isActiveFlow).map(p => p.label)];
+  if (legacy.length && op !== 'delete') out.push({ sev: 'note', title: 'Legacy workflow rules and processes', body: legacy.join(', ') + '. Salesforce ended support for Workflow Rules and Process Builder at the end of 2025. They still run, but they no longer get fixes.', fix: 'Move them to record-triggered flows. Salesforce’s Migrate to Flow tool can convert many of them.' });
+
+  // Apex risks across triggers that fire here and the classes they call
+  const firing = uniq(stages.flatMap(s => s.items.filter(i => i.kind === 'trigger').map(i => i.ref)));
+  const byRisk = {};
+  firing.forEach(t => {
+    t.risks.forEach(r => (byRisk[r] = byRisk[r] || new Set()).add(t.name));
+    t.classes.forEach(c => (org.classRisks[c] || []).forEach(r => (byRisk[r] = byRisk[r] || new Set()).add(c)));
+  });
+  Object.entries(byRisk).forEach(([r, where]) => {
+    const t = RISK_TEXT[r];
+    out.push({ sev: 'risk', title: t.title, body: 'Found in ' + [...where].join(', ') + '. ' + t.why, fix: t.fix });
+  });
+
+  o.rollups.forEach(r => {
+    const parent = org.objects[r.parent];
+    const n = parent ? automationCount(parent) : 0;
+    if (n) out.push({ sev: 'note', title: 'Saving ' + objName + ' also saves ' + r.parent, body: 'The roll-up summary ' + r.parent + '.' + r.field + ' recalculates, so ' + n + ' ' + r.parent + ' automation' + (n > 1 ? 's run' : ' runs') + ' in the same transaction.', fix: 'Pick ' + r.parent + ' in the object list to replay its side too.' });
+  });
+  const rank = { conflict: 0, risk: 1, note: 2 };
+  return out.sort((a, b) => rank[a.sev] - rank[b.sev]);
+}
+
+/* ---------- state ---------- */
+const state = { org: null, obj: null, op: 'update', stages: [], hist: new Map(), idx: -1, playing: false, timer: null, speed: 1, autoScroll: false, played: false, applied: -1 };
+const el = {
+  pipeline: $('#pipeline'), record: $('#record'), objectSel: $('#objectSel'), status: $('#status'), story: $('#story'),
+  filmTitle: $('#filmTitle'), filmSub: $('#filmSub'), playBtn: $('#playBtn'), playLabel: $('#playLabel'), playIcon: $('#playIcon'),
+  live: $('#live'), film: $('#film'), hideEmpty: $('#hideEmpty'), findingsList: $('#findingsList'), findingsIntro: $('#findingsIntro'),
+  nowbar: $('#nowbar'), npStep: $('#npStep'), npChange: $('#npChange'), npPlay: $('#npPlay'), detail: $('#detail'), detailInner: $('#detailInner'), demoBtn: $('#demoBtn')
+};
+const PLAY_ICON = '<path d="M7 4.5v15l12-7.5z"/>';
+const PAUSE_ICON = '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>';
+
+function setStatus(msg, isError) { el.status.textContent = msg; el.status.classList.toggle('error', !!isError); }
+
+function populateObjects() {
+  const objs = Object.values(state.org.objects).map(o => ({ name: o.name, n: automationCount(o) })).filter(o => o.n > 0).sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+  el.objectSel.innerHTML = objs.map(o => '<option value="' + esc(o.name) + '">' + esc(o.name) + ' (' + o.n + ')</option>').join('');
+  return objs;
+}
+
+/* ---------- rendering ---------- */
+function rebuild() {
+  stop();
+  state.stages = buildTimeline(state.org, state.obj, state.op);
+  state.hist = fieldHistory(state.stages);
+  state.idx = -1;
+  const total = state.stages.reduce((n, s) => n + s.items.length, 0);
+  const withItems = state.stages.filter(s => s.items.length).length;
+  el.filmTitle.textContent = state.obj + ', ' + VERB[state.op];
+  el.filmSub.textContent = total ? total + ' automation step' + (total > 1 ? 's' : '') + ' across ' + withItems + ' of ' + state.stages.length + ' stages' : 'No automation runs here';
+  renderStory();
+  renderPipeline();
+  renderRecord(state.stages.length - 1, false);
+  renderFindings();
+  el.pipeline.classList.remove('replaying');
+}
+
+function renderStory() {
+  if (!state.org.demo) { el.story.hidden = true; return; }
+  el.story.hidden = false;
+  el.story.textContent = state.obj === 'Opportunity' && state.op === 'update'
+    ? 'Demo story: a sales rep raises a deal to 120,000. The admin’s before-save flow gives it a 12% tier discount, but an Apex before trigger runs after the flow and resets the discount to 0. Press Play and watch Discount__c.'
+    : 'You’re looking at the demo org, a sample with flows, Apex, validation rules and legacy automation. Upload your own zip to X-ray your org.';
+}
+
+function chipNotes(item) {
+  const notes = [];
+  (item.writes || []).forEach(w => {
+    const h = state.hist.get(w.field);
+    if (!h || !isConflict(h)) return;
+    const last = h[h.length - 1];
+    const key = item.writerKey || item.id;
+    notes.push(last.writer === key && last.item === item ? 'wins ' + w.field : (last.writer === key ? '' : 'overwritten: ' + w.field));
+  });
+  return uniq(notes.filter(Boolean));
+}
+
+function renderPipeline() {
+  const parts = ['<div class="rail" aria-hidden="true"><div class="rail-fill"></div></div><div class="beam" aria-hidden="true"></div>'];
+  state.stages.forEach((s, i) => {
+    const empty = !s.items.length && !s.system;
+    const cls = ['stage', empty ? 'empty' : '', s.system ? 'system' : '', s.key === 'rerun' ? 'loop' : ''].filter(Boolean).join(' ');
+    const chips = s.items.map((it, j) => {
+      const notes = chipNotes(it);
+      const clash = notes.length > 0;
+      return '<button type="button" class="chip' + (clash ? ' clash' : it.warn ? ' warn' : '') + '" data-stage="' + i + '" data-item="' + j + '">' +
+        '<span class="k">' + esc(it.typeLabel) + '</span><span class="n">' + esc(it.label) + '</span>' +
+        (it.sub || clash ? '<span class="s">' + esc([clash ? notes.join(', ') : '', it.sub].filter(Boolean).join(', ')) + '</span>' : '') + '</button>';
+    }).join('');
+    parts.push('<li class="' + cls + '" data-i="' + i + '">' +
+      '<span class="dot" aria-hidden="true"></span>' +
+      '<div class="stage-head"><span class="stage-n">' + esc(s.n) + '</span><h3 class="stage-title">' + esc(s.title) + '</h3>' +
+      (s.items.length ? '<span class="stage-count">' + s.items.length + '</span>' : empty ? '<span class="stage-count">none here</span>' : '') + '</div>' +
+      '<p class="stage-desc">' + esc(s.desc) + '</p>' +
+      (chips ? '<div class="chips">' + chips + '</div>' : '') + '</li>');
+  });
+  el.pipeline.innerHTML = parts.join('');
+  el.pipeline.classList.toggle('hide-empty', el.hideEmpty.checked);
+}
+
+function initialValue(field) {
+  if (state.op !== 'update') return state.op === 'insert' ? '(new)' : '—';
+  const init = state.org.initial && state.org.initial[state.obj];
+  return init && init[field] != null ? init[field] : '—';
+}
+
+const pencil = anim => '<svg class="pencil' + (anim ? ' anim' : '') + '" viewBox="0 0 120 44" preserveAspectRatio="none" aria-hidden="true"><path d="M8 24 C 6 8, 60 2, 104 9 C 122 13, 118 36, 86 40 C 52 45, 10 41, 9 26 C 9 19, 22 12, 40 10"/></svg>';
+
+function renderRecord(upTo, animateStage) {
+  const fields = [...state.hist.keys()];
+  const head = '<h3>' + esc(state.obj) + ' record</h3><p class="sub">' + (state.op === 'delete' ? 'Fields changed while deleting' : 'Fields changed during this save') + (state.org.demo ? '' : '. Values are what the automation sets, not live data.') + '</p>';
+  if (!fields.length) { el.record.innerHTML = head + '<p class="empty-note">No field changes found for this object and operation.</p>'; return; }
+  const rows = fields.map(f => {
+    const h = state.hist.get(f).filter(x => x.si <= upTo);
+    const current = h.length ? h[h.length - 1].value || 'set' : initialValue(f);
+    const writers = uniq(h.map(x => x.writer));
+    const clash = writers.length > 1;
+    const changedNow = animateStage != null && h.some(x => x.si === animateStage);
+    const clashBefore = uniq(h.filter(x => x.si < animateStage).map(x => x.writer)).length > 1;
+    const drawNow = changedNow && clash && !clashBefore;
+    const hist = h.length
+      ? '<div class="fhist">' + esc(initialValue(f)) + ' ' + h.map((x, k) => {
+          const lost = clash && k < h.length - 1 && x.writer !== h[h.length - 1].writer;
+          return '→ <span class="' + (lost ? 'lost' : '') + '">' + esc(x.value || 'set') + '</span> <span class="who">' + esc(x.who) + '</span>' + (x.heuristic ? '<span title="Found by reading the Apex code"> (from code)</span>' : '');
+        }).join(' ') + '</div>'
+      : '<div class="fhist">Not changed yet</div>';
+    const lastOther = clash ? h.slice().reverse().find(x => x.writer !== h[h.length - 1].writer) : null;
+    return '<li data-field="' + esc(f) + '"><div class="frow"><span class="fname">' + esc(f) + '</span><span class="fval' + (changedNow ? ' flash' : '') + '">' + esc(current) + (clash ? pencil(drawNow) : '') + '</span></div>' + hist +
+      (clash ? '<div class="clash-note">' + esc(h[h.length - 1].item.label) + ' replaced the value set by ' + esc(lastOther.item.label) + '</div>' : '') + '</li>';
+  }).join('');
+  const conflicts = fields.filter(f => isConflict(state.hist.get(f))).length;
+  const done = upTo >= state.stages.length - 1;
+  const summary = done ? '<p class="summary"><strong>' + fields.length + '</strong> field' + (fields.length > 1 ? 's' : '') + ' changed, <strong>' + conflicts + '</strong> conflict' + (conflicts === 1 ? '' : 's') + '.</p>' : '';
+  el.record.innerHTML = head + '<ul class="fields">' + rows + '</ul>' + summary;
+  if (animateStage != null) setTimeout(() => $$('.fval.flash', el.record).forEach(n => n.classList.remove('flash')), 900);
+}
+
+function renderFindings() {
+  const list = buildFindings(state.org, state.obj, state.op, state.stages, state.hist);
+  state.findings = list;
+  const label = { conflict: 'Conflict', risk: 'Risk', note: 'Worth knowing' };
+  el.findingsIntro.textContent = list.length
+    ? list.length + ' finding' + (list.length > 1 ? 's' : '') + ' for ' + state.obj + ' when a record is ' + VERB[state.op] + '. Conflicts first.'
+    : 'Nothing to flag for ' + state.obj + ' when a record is ' + VERB[state.op] + '. Try another object or operation.';
+  el.findingsList.innerHTML = list.map(f => '<li class="finding ' + f.sev + '"><span class="sev">' + label[f.sev] + '</span><div><h3>' + esc(f.title) + '</h3><p>' + esc(f.body) + '</p><p class="fix">' + esc(f.fix) + '</p></div></li>').join('');
+}
+
+/* ---------- replay ---------- */
+const stageEls = () => $$('.stage', el.pipeline);
+const visible = i => { const s = state.stages[i]; return !(el.hideEmpty.checked && !s.items.length && !s.system); };
+function nextVisible(i, dir) { let j = i + dir; while (j >= 0 && j < state.stages.length && !visible(j)) j += dir; return j; }
+
+function moveBeam(i) {
+  const node = stageEls()[i];
+  const beam = $('.beam', el.pipeline), fill = $('.rail-fill', el.pipeline);
+  if (!node || !beam) return;
+  beam.classList.add('on');
+  beam.style.transform = 'translateY(' + (node.offsetTop + node.offsetHeight) + 'px)';
+  if (fill) fill.style.height = Math.max(0, node.offsetTop + 8) + 'px';
+}
+
+function activate(i, animate) {
+  state.idx = i;
+  el.pipeline.classList.add('replaying');
+  stageEls().forEach((n, k) => { n.classList.toggle('done', k < i); n.classList.toggle('active', k === i); });
+  moveBeam(i);
+  renderRecord(i, animate ? i : null);
+  const s = state.stages[i];
+  const change = s.items.flatMap(it => (it.writes || []).map(w => w.field + ' → ' + (w.value || 'set') + ' (' + (it.histLabel || it.label) + ')'));
+  el.live.textContent = 'Step ' + s.n + ': ' + s.title + '. ' + (s.items.length ? s.items.length + ' automation' + (s.items.length > 1 ? 's' : '') + '.' : '');
+  el.npStep.textContent = 'Step ' + s.n + ': ' + s.title;
+  el.npChange.textContent = change.length ? change[change.length - 1] : (s.items.length ? s.items.map(x => x.label).join(', ') : 'Nothing runs here');
+  if (state.playing && state.autoScroll) stageEls()[i].scrollIntoView({ block: 'center', behavior: reduceMotion ? 'auto' : 'smooth' });
+}
+
+function stageDelay(s) {
+  const base = s.system ? 700 : s.items.length ? 900 + Math.min(s.items.length, 5) * 380 : 450;
+  return base / state.speed;
+}
+
+function setPlayingUI(on) {
+  el.playLabel.textContent = on ? 'Pause' : (state.idx >= state.stages.length - 1 || state.idx < 0 ? 'Play' : 'Resume');
+  el.playIcon.innerHTML = on ? PAUSE_ICON : PLAY_ICON;
+  el.npPlay.textContent = on ? 'Pause' : 'Play';
+  el.nowbar.classList.toggle('show', on || (state.idx >= 0 && state.idx < state.stages.length - 1));
+}
+
+function tick() {
+  const n = nextVisible(state.idx, 1);
+  if (n >= state.stages.length) { finish(); return; }
+  activate(n, true);
+  state.timer = setTimeout(tick, stageDelay(state.stages[n]));
+}
+
+function play(opts = {}) {
+  if (state.playing) return;
+  if (state.idx >= state.stages.length - 1 || opts.restart) { state.idx = -1; renderRecord(-1, null); }
+  state.autoScroll = !!opts.autoScroll;
+  state.playing = true;
+  state.played = true;
+  el.pipeline.classList.add('replaying');
+  if (state.idx === -1) stageEls().forEach(n => n.classList.remove('done', 'active'));
+  setPlayingUI(true);
+  tick();
+}
+function stop() {
+  clearTimeout(state.timer);
+  state.timer = null;
+  state.playing = false;
+  setPlayingUI(false);
+}
+function finish() {
+  stop();
+  state.idx = state.stages.length - 1;
+  renderRecord(state.idx, null);
+  el.nowbar.classList.remove('show');
+  setPlayingUI(false);
+  setTimeout(() => { if (!state.playing) { el.pipeline.classList.remove('replaying'); stageEls().forEach(n => n.classList.remove('active')); const b = $('.beam', el.pipeline); if (b) b.classList.remove('on'); } }, 900);
+  el.live.textContent = 'Replay finished. ' + (state.findings?.length || 0) + ' findings below.';
+}
+function step(dir) {
+  stop();
+  const n = nextVisible(state.idx, dir);
+  if (n < 0) { state.idx = -1; renderRecord(-1, null); stageEls().forEach(x => x.classList.remove('done', 'active')); return; }
+  if (n >= state.stages.length) { finish(); return; }
+  activate(n, dir > 0);
+  stageEls()[n].scrollIntoView({ block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
+  setPlayingUI(false);
+}
+
+/* ---------- detail dialog ---------- */
+function dl(rows) { return '<dl>' + rows.filter(r => r && r[1] !== '' && r[1] != null).map(([k, v]) => '<dt>' + esc(k) + '</dt><dd>' + v + '</dd>').join('') + '</dl>'; }
+const writesHtml = ws => ws.length ? ws.map(w => '<code>' + esc(w.field) + '</code> = ' + esc(w.value || 'set') + (w.heuristic ? ' <span style="color:var(--film-muted)">(found in code)</span>' : '')).join('<br>') : '';
+const TRIGGER_WORDS = { Create: 'when a record is created', Update: 'when a record is updated', CreateAndUpdate: 'when a record is created or updated', Delete: 'when a record is deleted' };
+const WF_WORDS = { onCreateOnly: 'Only when a record is created', onCreateOrTriggeringUpdate: 'When created, and when edited to meet the criteria', onAllChanges: 'When created, and every time it’s edited' };
+
+function openDetail(item) {
+  const r = item.ref;
+  let body = '';
+  if (item.kind === 'flow' || item.kind === 'flowpath' || item.kind === 'email') {
+    body = dl([
+      ['API name', '<code>' + esc(r.name) + '</code>'],
+      ['Runs', esc((r.timing === 'after' ? 'After save, ' : r.timing === 'before' ? 'Before save, ' : 'Before delete, ') + (TRIGGER_WORDS[r.recordTriggerType] || ''))],
+      ['Status', esc(r.status)],
+      ['Trigger order', r.order != null ? String(r.order) : 'Not set'],
+      ['Entry conditions', esc(r.entry || 'None, runs for every record') + (r.onlyWhenChanged ? '<br>Only when a record is updated to meet the conditions' : '')],
+      ['Sets fields', writesHtml(r.writes)],
+      ['Saves the record again', r.updatesRecord ? 'Yes, it updates the triggering record after save' : ''],
+      ['Other records', [r.creates ? r.creates + ' create' : '', r.otherUpdates ? r.otherUpdates + ' update' : '', r.deletes ? r.deletes + ' delete' : '', r.subflows ? r.subflows + ' subflow' : ''].filter(Boolean).join(', ')],
+      ['Actions', esc(r.actions.map(a => a.label + ' (' + a.type + ')').join(', '))],
+      ['Async and scheduled paths', esc(r.asyncPaths.map(p => p.label + (p.type === 'async' ? ', runs after commit' : ', ' + p.offset)).join('; '))]
+    ]);
+  } else if (item.kind === 'process') {
+    body = dl([['API name', '<code>' + esc(r.name) + '</code>'], ['Runs', r.onCreateOnly ? 'Only when a record is created' : 'When a record is created or edited'], ['Sets fields', writesHtml(r.writes)], ['Creates records', r.creates ? String(r.creates) : '']]);
+  } else if (item.kind === 'trigger' || item.kind === 'async') {
+    const risks = uniq([...r.risks.map(x => [x, r.name]), ...r.classes.flatMap(c => (state.org.classRisks[c] || []).map(x => [x, c]))].map(JSON.stringify)).map(JSON.parse);
+    body = dl([
+      ['Events', esc(r.events.join(', '))],
+      ['Status', r.active ? 'Active' : 'Inactive'],
+      ['Calls classes', r.classes.length ? r.classes.map(c => '<code>' + esc(c) + '</code>').join(', ') : 'None found'],
+      ['Sets fields', writesHtml(r.writes)],
+      ['Starts async work', esc(r.async.join(', '))]
+    ]) + (risks.length ? '<ul class="risks">' + risks.map(([k, where]) => '<li><span class="r">' + esc(RISK_TEXT[k].title) + '</span> in <code>' + esc(where) + '</code>. ' + esc(RISK_TEXT[k].fix) + '</li>').join('') + '</ul>' : '') +
+      '<pre><code>' + esc(r.body.split('\n').slice(0, 60).join('\n')) + '</code></pre>' +
+      r.classes.map(c => '<details class="cls"><summary>Show <code>' + esc(c) + '</code></summary><pre><code>' + esc(state.org.classes[c].split('\n').slice(0, 120).join('\n')) + '</code></pre></details>').join('');
+  } else if (item.kind === 'validation') {
+    body = dl([['Error message', esc(r.message)], ['Shown on', r.field ? '<code>' + esc(r.field) + '</code>' : 'Top of the page']]) + '<pre><code>' + esc(r.formula) + '</code></pre>';
+  } else if (item.kind === 'workflow') {
+    body = dl([['Evaluates', esc(WF_WORDS[r.triggerType] || r.triggerType)], ['Criteria', '<code>' + esc(r.criteria || 'None') + '</code>'], ['Field updates', writesHtml(r.writes)], ['Other actions', esc(r.otherActions.join(', '))], ['Time-based actions', r.timeTriggers ? String(r.timeTriggers) : '']]);
+  } else if (item.kind === 'rollup') {
+    const p = state.org.objects[r.parent];
+    body = dl([['Parent field', '<code>' + esc(r.parent + '.' + r.field) + '</code>'], ['Calculation', esc(r.op + (r.summarized ? ' of ' + r.summarized : ''))], ['Parent automation', p ? automationCount(p) + ' automations run on ' + esc(r.parent) : 'None found']]);
+  } else if (item.kind === 'duplicate') {
+    body = dl([['On create', esc(r.onInsert)], ['On update', esc(r.onUpdate)]]);
+  } else {
+    body = dl([['Status', r.active ? 'Active' : 'Inactive']]);
+  }
+  el.detailInner.innerHTML = '<div class="detail-head"><div><span class="k">' + esc(item.typeLabel) + '</span><h2 id="detailTitle">' + esc(item.label) + '</h2></div>' +
+    '<button class="fbtn detail-close" type="button" id="detailClose">Close</button></div>' + body;
+  $('#detailClose').addEventListener('click', () => el.detail.close());
+  if (typeof el.detail.showModal === 'function') el.detail.showModal(); else el.detail.setAttribute('open', '');
+}
+el.detail.addEventListener('click', e => { if (e.target === el.detail) el.detail.close(); });
+
+/* ---------- documentation export ---------- */
+function mdObject(org, objName) {
+  const o = org.objects[objName];
+  const L = ['## ' + objName, ''];
+  ['insert', 'update', 'delete'].forEach(op => {
+    const stages = buildTimeline(org, objName, op);
+    if (!stages.some(s => s.items.length)) return;
+    L.push('### When a record is ' + VERB[op], '');
+    stages.filter(s => s.items.length).forEach(s => {
+      L.push(s.n + '. **' + s.title + '**');
+      s.items.forEach(it => L.push('   - ' + it.typeLabel + ': ' + it.label + (it.sub ? ' (' + it.sub + ')' : '')));
+    });
+    const hist = fieldHistory(stages);
+    if (hist.size) {
+      L.push('', '| Field | Set by, in order | Final value |', '| --- | --- | --- |');
+      for (const [f, h] of hist) L.push('| `' + f + '` | ' + h.map(x => x.who).join(' → ') + (isConflict(h) ? ' **(conflict)**' : '') + ' | ' + String(h[h.length - 1].value || 'set').replace(/\|/g, '\\|') + ' |');
+    }
+    const fs = buildFindings(org, objName, op, stages, hist);
+    if (fs.length) { L.push('', '**Findings**', ''); fs.forEach(f => L.push('- **' + f.title + '.** ' + f.body + ' _Fix:_ ' + f.fix)); }
+    L.push('');
+  });
+  L.push('### Automation inventory', '');
+  o.triggers.forEach(t => L.push('- Apex trigger `' + t.name + '` (' + t.events.join(', ') + ')' + (t.active ? '' : ', inactive') + (t.classes.length ? '. Calls ' + t.classes.join(', ') : '')));
+  o.flows.forEach(f => L.push('- Flow `' + f.name + '`: ' + f.label + ', ' + f.timing + ' ' + (f.recordTriggerType || '') + ', order ' + (f.order ?? 'not set') + ', ' + f.status + (f.entry ? '. Entry: ' + f.entry : '')));
+  o.processes.forEach(p => L.push('- Process `' + p.name + '`: ' + p.label + ', ' + p.status));
+  o.validationRules.forEach(v => L.push('- Validation rule `' + v.name + '`' + (v.active ? '' : ' (inactive)') + ': ' + v.message));
+  o.workflowRules.forEach(w => L.push('- Workflow rule `' + w.name + '`' + (w.active ? '' : ' (inactive)') + (w.writes.length ? ', updates ' + w.writes.map(x => x.field).join(', ') : '')));
+  o.duplicateRules.forEach(d => L.push('- Duplicate rule ' + d.name + (d.active ? '' : ' (inactive)')));
+  o.rollups.forEach(r => L.push('- Rolls up into `' + r.parent + '.' + r.field + '` (' + r.op + ')'));
+  L.push('');
+  return L.join('\n');
+}
+function mdDoc(objs) {
+  const date = new Date().toISOString().slice(0, 10);
+  return ['# Org X-ray documentation: ' + state.org.label, '', 'Generated ' + date + ' with Org X-ray (https://titrovatools.com/org-xray/). Apex field changes are found by reading code, so confirm important ones with a debug log.', '', ...objs.map(n => mdObject(state.org, n))].join('\n');
+}
+function download(name, text) {
+  const url = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+const slug = s => String(s).toLowerCase().replace(/\.zip$/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'org';
+
+/* ---------- zip loading ---------- */
+let jszipPromise = null;
+function ensureJSZip() {
+  if (window.JSZip) return Promise.resolve();
+  if (!jszipPromise) jszipPromise = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = '/org-xray/jszip.min.js';
+    s.onload = res;
+    s.onerror = () => { jszipPromise = null; rej(new Error('The zip reader didn’t load. Check your connection and try again.')); };
+    document.head.appendChild(s);
+  });
+  return jszipPromise;
+}
+async function readZip(blob, depth) {
+  const zip = await window.JSZip.loadAsync(blob);
+  const out = [], jobs = [];
+  zip.forEach((path, entry) => {
+    if (entry.dir) return;
+    const type = classify(path);
+    if (!type) return;
+    if (type === 'zip') { if (depth < 1) jobs.push(entry.async('blob').then(b => readZip(b, depth + 1)).then(r => out.push(...r))); return; }
+    jobs.push(entry.async('string').then(text => out.push({ path, type, text })));
+  });
+  await Promise.all(jobs);
+  return out;
+}
+async function loadZip(file) {
+  if (!file) return;
+  if (!/\.zip$/i.test(file.name)) { setStatus(file.name + ' isn’t a zip file. Upload the .zip you got from the Salesforce CLI, or a zip of your force-app folder.', true); return; }
+  stop();
+  setStatus('Reading ' + file.name + '…');
+  try {
+    await ensureJSZip();
+    const files = await readZip(file, 0);
+    if (!files.length) throw new Error(file.name + ' has no Salesforce metadata files in it. Retrieve with the package.xml below, then upload the zip.');
+    setStatus('Analysing ' + files.length + ' metadata files…');
+    await new Promise(r => setTimeout(r, 30));
+    const org = parseFiles(files, file.name);
+    state.org = org;
+    const objs = populateObjects();
+    if (!objs.length) throw new Error('No triggers, flows, validation rules or workflow rules were found in ' + file.name + '. Check that the zip includes them.');
+    state.obj = objs[0].name;
+    el.objectSel.value = state.obj;
+    el.demoBtn.hidden = false;
+    rebuild();
+    const total = objs.reduce((n, o) => n + o.n, 0);
+    setStatus('X-rayed ' + file.name + ': ' + total + ' automations on ' + objs.length + ' object' + (objs.length > 1 ? 's' : '') + ', read from ' + files.length + ' files. Press Play.');
+    $('#tool').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  } catch (err) {
+    console.error(err);
+    setStatus(err.message || 'That zip couldn’t be read. Try retrieving it again.', true);
+  }
+}
+
+function loadDemo() {
+  state.org = buildDemo();
+  populateObjects();
+  state.obj = 'Opportunity';
+  el.objectSel.value = state.obj;
+  el.demoBtn.hidden = true;
+  setOp('update', true);
+  rebuild();
+  setStatus('Showing the demo org. Upload your own zip to X-ray your org.');
+}
+
+function setOp(op, silent) {
+  state.op = op;
+  $$('#opGroup button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.op === op)));
+  if (!silent) rebuild();
+}
+
+/* ---------- events ---------- */
+el.playBtn.addEventListener('click', () => state.playing ? stop() : play({ autoScroll: true }));
+el.npPlay.addEventListener('click', () => state.playing ? stop() : play({ autoScroll: true }));
+$('#nextBtn').addEventListener('click', () => step(1));
+$('#prevBtn').addEventListener('click', () => step(-1));
+$('#restartBtn').addEventListener('click', () => { stop(); play({ restart: true, autoScroll: true }); });
+$('#speedSel').addEventListener('change', e => { state.speed = parseFloat(e.target.value) || 1; });
+el.hideEmpty.addEventListener('change', () => { el.pipeline.classList.toggle('hide-empty', el.hideEmpty.checked); if (state.idx >= 0) moveBeam(state.idx); });
+el.objectSel.addEventListener('change', () => { state.obj = el.objectSel.value; rebuild(); });
+$$('#opGroup button').forEach(b => b.addEventListener('click', () => setOp(b.dataset.op)));
+el.pipeline.addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const it = state.stages[+chip.dataset.stage].items[+chip.dataset.item];
+  if (state.playing) stop();
+  openDetail(it);
+});
+$('#zipInput').addEventListener('change', e => { loadZip(e.target.files[0]); e.target.value = ''; });
+el.demoBtn.addEventListener('click', loadDemo);
+$('#heroPlay').addEventListener('click', () => {
+  if (!state.org.demo) loadDemo();
+  if (state.obj !== 'Opportunity' || state.op !== 'update') { state.obj = 'Opportunity'; el.objectSel.value = 'Opportunity'; setOp('update', true); rebuild(); }
+  $('#tool').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  stop();
+  setTimeout(() => play({ restart: true, autoScroll: true }), reduceMotion ? 0 : 500);
+});
+['wheel', 'touchmove'].forEach(t => window.addEventListener(t, () => { state.autoScroll = false; }, { passive: true }));
+window.addEventListener('resize', () => { if (state.idx >= 0) moveBeam(state.idx); });
+
+// drag and drop anywhere on the tool
+const tool = $('#tool');
+let dragDepth = 0;
+tool.addEventListener('dragenter', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); dragDepth++; el.film.classList.add('dragging'); } });
+tool.addEventListener('dragover', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) e.preventDefault(); });
+tool.addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) el.film.classList.remove('dragging'); });
+tool.addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; el.film.classList.remove('dragging'); loadZip(e.dataTransfer.files[0]); });
+
+$('#exportObj').addEventListener('click', () => download('org-xray-' + slug(state.obj) + '.md', mdDoc([state.obj])));
+$('#exportOrg').addEventListener('click', () => {
+  const objs = Object.values(state.org.objects).filter(o => automationCount(o) > 0).map(o => o.name).sort();
+  download('org-xray-' + slug(state.org.label) + '.md', mdDoc(objs));
+});
+$('#printBtn').addEventListener('click', () => { stop(); el.pipeline.classList.remove('replaying'); renderRecord(state.stages.length - 1, null); window.print(); });
+
+$$('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+  const text = document.getElementById(b.dataset.copy).textContent;
+  try { await navigator.clipboard.writeText(text); }
+  catch (_) { const r = document.createRange(); r.selectNodeContents(document.getElementById(b.dataset.copy)); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); document.execCommand('copy'); }
+  b.textContent = 'Copied';
+  setTimeout(() => { b.textContent = 'Copy'; }, 1600);
+}));
+
+// theme toggle (session only)
+const themeBtn = $('#themeBtn');
+const MOON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>';
+const SUN = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
+const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+function syncThemeBtn() { const d = isDark(); themeBtn.innerHTML = d ? SUN : MOON; themeBtn.setAttribute('aria-label', d ? 'Switch to light theme' : 'Switch to dark theme'); }
+themeBtn.addEventListener('click', () => { document.documentElement.dataset.theme = isDark() ? 'light' : 'dark'; syncThemeBtn(); });
+syncThemeBtn();
+
+/* ---------- start ---------- */
+loadDemo();
+// One orchestrated moment: the first time the film scrolls into view, it replays itself once (without moving the page).
+if (!reduceMotion && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver(entries => {
+    if (entries.some(en => en.isIntersecting) && !state.played) { io.disconnect(); setTimeout(() => { if (!state.played) play({ autoScroll: false }); }, 400); }
+  }, { threshold: 0.35 });
+  io.observe(el.film);
+}
+})();
+</script>
+</body>
+</html>

@@ -102,7 +102,7 @@ export default function Contact() {
               and that section answers most questions.
             </p>
             <ul className="mt-4 flex flex-wrap gap-2">
-              {TOOLS.map((t) => (
+              {TOOLS.filter((t) => !t.staticPage).map((t) => (
                 <li key={t.slug}>
                   <Link to={`${t.path}#features-and-limitations`} className="chip">
                     <t.icon size={15} aria-hidden /> {t.short}

@@ -4,10 +4,10 @@ import { Logo } from '@/components/common/Logo';
 import { site } from '@/data/site';
 import { CATEGORIES, TOOLS } from '@/data/tools';
 
-const POPULAR = ['json-to-apex', 'soql-formatter', 'salesforce-id-converter', 'curl-to-apex', 'json-formatter', 'jwt-decoder'];
+const POPULAR = ['org-xray', 'json-to-apex', 'soql-formatter', 'salesforce-id-converter', 'curl-to-apex', 'json-formatter'];
 
 const GROUPS = [
-  { title: 'Popular tools', links: POPULAR.map((slug) => TOOLS.find((t) => t.slug === slug)!).map((t) => ({ to: t.path, label: t.short })) },
+  { title: 'Popular tools', links: POPULAR.map((slug) => TOOLS.find((t) => t.slug === slug)!).map((t) => ({ to: t.path, label: t.short, external: !!t.staticPage })) },
   { title: 'Categories', links: CATEGORIES.map((c) => ({ to: `/${c.slug}`, label: c.short === 'Queries' ? 'SOQL & SQL' : c.short })) },
 ];
 const EXPLORE = [
@@ -56,7 +56,7 @@ export function Footer() {
               <ul className="mt-2.5 space-y-0.5">
                 {g.links.map((l) => (
                   <li key={l.to}>
-                    <Link to={l.to} className={linkCls}>{l.label}</Link>
+                    {'external' in l && l.external ? <a href={l.to} className={linkCls}>{l.label}</a> : <Link to={l.to} className={linkCls}>{l.label}</Link>}
                   </li>
                 ))}
               </ul>

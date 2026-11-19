@@ -7,6 +7,7 @@ import { CATEGORIES, TOOLS, toolsInCategory } from '@/data/tools';
 import { site } from '@/data/site';
 import { toggleTheme } from '@/hooks/useTheme';
 import { cn } from '@/utils/io';
+import { ToolLink } from '@/components/tools/ToolLink';
 
 const LINKS = [
   { to: '/', label: 'Home' },
@@ -221,7 +222,7 @@ export function Header() {
                   <ul className="mt-2 flex flex-wrap gap-2">
                     {TOOLS.slice(0, 8).map((t) => (
                       <li key={t.slug}>
-                        <Link to={t.path} className="chip"><span aria-hidden="true">{t.emoji}</span> {t.short}</Link>
+                        <ToolLink tool={t} className="chip"><span aria-hidden="true">{t.emoji}</span> {t.short}</ToolLink>
                       </li>
                     ))}
                   </ul>

@@ -79,15 +79,50 @@ test('Base64, URL, SQL, XML and timestamp tools work end to end', async ({ page 
 
 test('dashboard filters, sorts and links to categories', async ({ page, isMobile }) => {
   await open(page, '/tools');
-  await expect(page.getByText('Showing 14 of 14')).toBeVisible();
+  await expect(page.getByText('Showing 15 of 15')).toBeVisible();
   await page.getByLabel('Filter tools').fill('token');
   await expect(page.getByRole('link', { name: /JWT Decoder/ }).first()).toBeVisible();
   await page.getByLabel('Filter tools').fill('');
   await page.getByText('⚡ Salesforce', { exact: true }).click();
-  await expect(page.getByText('Showing 6 of 14')).toBeVisible();
+  await expect(page.getByText('Showing 7 of 15')).toBeVisible();
   const nav = page.getByRole('navigation', { name: 'Tool categories' }).locator('visible=true');
   await nav.getByRole('link', { name: /Encoding/ }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Encoding & Security Utilities' })).toBeVisible();
   await expect(page.getByText('3 tools in this category')).toBeVisible();
   if (!isMobile) await expect(nav.getByRole('link', { name: /Encoding/ })).toHaveAttribute('aria-current', 'page');
+});
+
+test('Org X-ray loads, replays the demo org and is linked from the site', async ({ page }) => {
+  const external: string[] = [];
+  page.on('request', (r) => { if (!r.url().startsWith('http://localhost')) external.push(r.url()); });
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/org-xray/');
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('See everything that runs when a Salesforce record saves');
+  await page.getByRole('button', { name: /Replay the demo org/i }).click();
+  await expect(page.getByText(/OpportunityTrigger/).first()).toBeVisible();
+  expect(errors).toEqual([]);
+  expect(external, external.join('\n')).toEqual([]);
+  const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
+  expect(canonical).toMatch(/\/org-xray\/$/);
+
+  await open(page, '/tools');
+  await page.getByRole('link', { name: /Org X-ray/ }).first().click();
+  await expect(page).toHaveURL(/\/org-xray\/$/);
+});
+
+test('Org X-ray loads from the site, replays the demo and uses no outside servers', async ({ page }) => {
+  const outside: string[] = [];
+  page.on('request', (r) => {
+    const u = new URL(r.url());
+    if (u.hostname !== 'localhost') outside.push(u.hostname);
+  });
+  await open(page, '/tools');
+  await page.getByRole('link', { name: /Org X-ray/ }).first().click();
+  await expect(page).toHaveURL(/\/org-xray\/$/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('See everything that runs when a Salesforce record saves');
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /^http:\/\/localhost:4173\/org-xray\/$|^https:\/\/titrova\.pages\.dev\/org-xray\/$/);
+  await page.getByRole('button', { name: /Replay the demo/i }).click();
+  await expect(page.getByText('Before triggers').first()).toBeVisible();
+  expect(outside, outside.join(', ')).toEqual([]);
 });

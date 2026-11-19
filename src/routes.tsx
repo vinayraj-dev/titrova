@@ -54,7 +54,7 @@ export const NOT_FOUND = page('*', () => import('@/pages/NotFound'));
 export const ROUTES: PageDef[] = [
   page('/', () => import('@/pages/Home')),
   page('/tools', () => import('@/pages/Tools')),
-  ...TOOLS.map((t) => page(t.path, TOOL_PAGES[t.slug])),
+  ...TOOLS.filter((t) => !t.staticPage).map((t) => page(t.path, TOOL_PAGES[t.slug])),
   ...CATEGORIES.map((c) => page(`/${c.slug}`, () => import('@/pages/Category'), { id: c.id })),
   page('/guides', () => import('@/pages/Guides')),
   ...GUIDES.map((g) => page(`/guides/${g.slug}`, () => import('@/pages/Guide'), { slug: g.slug })),

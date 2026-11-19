@@ -11,10 +11,11 @@ interface Item {
   icon: LucideIcon;
   search: string;
   group: string;
+  external?: boolean;
 }
 
 const ITEMS: Item[] = [
-  ...TOOLS.map((t) => ({ label: t.name, hint: t.tagline, to: t.path, icon: t.icon, group: 'Tools', search: `${t.name} ${t.tagline} ${t.keywords.join(' ')}`.toLowerCase() })),
+  ...TOOLS.map((t) => ({ label: t.name, hint: t.tagline, to: t.path, icon: t.icon, group: 'Tools', external: !!t.staticPage, search: `${t.name} ${t.tagline} ${t.keywords.join(' ')}`.toLowerCase() })),
   ...CATEGORIES.map((c) => ({ label: c.name, hint: c.blurb, to: `/${c.slug}`, icon: FolderOpen, group: 'Categories', search: `${c.name} ${c.blurb}`.toLowerCase() })),
   ...GUIDES.map((g) => ({ label: g.title, hint: `${g.minutes} minute guide`, to: `/guides/${g.slug}`, icon: BookOpen, group: 'Guides', search: `${g.title} ${g.description}`.toLowerCase() })),
   ...[
@@ -95,7 +96,8 @@ export function PaletteProvider({ children }: { children: ReactNode }) {
   const go = (item?: Item) => {
     if (!item) return;
     setOpen(false);
-    navigate(item.to);
+    if (item.external) window.location.assign(item.to);
+    else navigate(item.to);
   };
 
   return (

@@ -9,6 +9,7 @@ ad-supported site needs. No backend, no database, no paid services.
 
 | Tool | URL |
 | --- | --- |
+| 🩻 Org X-ray: Order of Execution Visualizer | `/org-xray/` (standalone page in `public/org-xray/`) |
 | 🧩 JSON to Apex Class Generator | `/tools/json-to-apex` |
 | ✨ SOQL Formatter | `/tools/soql-formatter` |
 | 🪪 Salesforce ID Converter | `/tools/salesforce-id-converter` |
@@ -167,6 +168,14 @@ Pages project → Custom domains → Set up a domain, and follow the DNS instruc
 2. Choose the **HTML file** verification method, download the file, put it in `public/`, commit and push.
 3. After the deploy, press Verify.
 4. Sitemaps → submit `sitemap.xml`.
+
+## Standalone tools (Org X-ray)
+
+`public/org-xray/` is a self-contained page (HTML, font, zip reader and share image) outside the React app.
+Its source uses `https://titrovatools.com`; `scripts/prerender.mjs` swaps in `VITE_SITE_URL` at build time and
+adds it to `sitemap.xml`. In `src/data/tools.ts` it has `staticPage: true`, so menus, cards and search link to
+it with a full page load. To add another standalone tool, put it in `public/<slug>/`, add its path to
+`STATIC_PAGES` in `scripts/prerender.mjs`, and register it in `TOOLS` with `staticPage: true` and its path.
 
 ## Adding a tool
 

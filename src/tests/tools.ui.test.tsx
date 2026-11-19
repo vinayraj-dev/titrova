@@ -184,12 +184,12 @@ describe('site chrome', () => {
   it('filters the tool list', async () => {
     await renderAt('/tools');
     await userEvent.type(screen.getByLabelText('Filter tools'), 'deploy');
-    expect(screen.getByText('Showing 1 of 14')).toBeInTheDocument();
+    expect(screen.getByText('Showing 1 of 15')).toBeInTheDocument();
     await userEvent.clear(screen.getByLabelText('Filter tools'));
     await userEvent.type(screen.getByLabelText('Filter tools'), 'zzz');
     expect(screen.getByText('No tool matches that yet')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Show all tools' }));
-    expect(screen.getByText('Showing 14 of 14')).toBeInTheDocument();
+    expect(screen.getByText('Showing 15 of 15')).toBeInTheDocument();
   });
 
   it('opens search with Ctrl+K, filters, and goes to the chosen tool with Enter', async () => {

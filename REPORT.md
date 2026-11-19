@@ -76,19 +76,26 @@ Every tool has unit tests for its logic and browser tests for its page. Highligh
 
 ## 5. Deployment status
 
-**Not deployed.** It needs your GitHub and Cloudflare accounts. The production build was served and
-tested locally.
+**Live at https://titrova.pages.dev** (Cloudflare Pages, free plan), deployed 16 November 2026.
+
+- Source: public repository https://github.com/vinayraj-dev/titrova (branch `main`). Every push to `main`
+  rebuilds and redeploys the site automatically.
+- Cloudflare's GitHub app has access to the `titrova` repository only.
+- Build settings: `npm run build`, output `dist`, `NODE_VERSION=22`, `VITE_SITE_URL=https://titrova.pages.dev`.
+- Verified on the live site: all 33 sitemap pages return 200 with one main heading, the correct canonical
+  URL and the independence notice; unknown pages return a real 404; robots.txt points to the sitemap;
+  tools work in the browser.
+- The temporary GitHub token used for the first push was deleted and confirmed revoked.
 
 ## 6. Steps you need to do
 
-1. Create an empty GitHub repository named `titrova`, and either push the code yourself (README) or
-   give me a 1-day fine-grained token for that repository only.
-2. In Cloudflare: Workers & Pages → Create → Pages → Connect to Git → `titrova`.
-   Build command `npm run build`, output `dist`, variable `NODE_VERSION` = `22`.
-3. Set `VITE_SITE_URL` to your Cloudflare address, add `VITE_CONTACT_EMAIL`, and redeploy.
-4. Verify the site in Google Search Console and submit `sitemap.xml`.
-5. Check domain and trademark availability for "Titrova".
-6. Review the Privacy Policy, Terms and Disclaimer.
+1. **Google Search Console:** add `https://titrova.pages.dev`, verify it, and submit `sitemap.xml`.
+2. **Contact email (optional):** in Cloudflare → titrova → Settings → Variables, add `VITE_CONTACT_EMAIL`, then redeploy.
+3. **GitHub security alerts:** GitHub lists 17 dependency alerts and 3 automatic update pull requests. Review
+   them, or ask Claude to; they concern build and test tools, not the published static files.
+4. **Optional CI:** `.github/workflows/ci.yml` is in the zip but not on GitHub (it needs a token with the
+   Workflows permission). Add it on GitHub (Add file → Create new file) if you want tests on every push.
+5. Check domain and trademark availability for "Titrova", and have the legal pages reviewed.
 
 ## 7. Adding future tools
 

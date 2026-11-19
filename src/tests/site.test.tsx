@@ -67,7 +67,7 @@ describe('every page', () => {
   });
 
   it('gives every tool page documentation, limitations, related tools and FAQs', async () => {
-    for (const tool of TOOLS) {
+    for (const tool of TOOLS.filter((t) => !t.staticPage)) {
       const { html } = await serverRender(tool.path);
       for (const heading of ['How to use', 'Features and limitations', 'What it does not do', 'Related tools', 'Questions about'])
         expect(html, `${tool.slug}: ${heading}`).toContain(heading);

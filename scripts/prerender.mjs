@@ -44,11 +44,21 @@ for (const route of [...paths, '/404']) {
   written.push(file);
 }
 
+// Standalone tools that live in public/ (outside the React app). Their source files are written for
+// https://titrovatools.com; the build swaps in the configured site address so they always match.
+const STATIC_PAGES = ['/org-xray/'];
+for (const p of STATIC_PAGES) {
+  const file = path.join(dist, p, 'index.html');
+  if (!fs.existsSync(file)) throw new Error(`Static page missing: ${file}`);
+  fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replaceAll('https://titrovatools.com', siteUrl));
+}
+
 const today = new Date().toISOString().slice(0, 10);
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ...paths.map((p) => `  <url><loc>${siteUrl}${p === '/' ? '/' : p}</loc><lastmod>${today}</lastmod></url>`),
+  ...STATIC_PAGES.map((p) => `  <url><loc>${siteUrl}${p}</loc><lastmod>${today}</lastmod></url>`),
   '</urlset>',
   '',
 ].join('\n');

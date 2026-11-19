@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ToolLink } from './ToolLink';
 import { ArrowRight, ArrowUpRight, Lightbulb } from 'lucide-react';
 import { FAMILIES, isNew, type ToolMeta } from '@/data/tools';
 import { pointerFx, pointerFxReset } from '@/hooks/pointerFx';
@@ -7,8 +8,8 @@ import { cn } from '@/utils/io';
 /** The whole card is one link. It tilts toward the pointer and its border lights up under it. */
 export function ToolCard({ tool, large, className }: { tool: ToolMeta; large?: boolean; className?: string }) {
   return (
-    <Link
-      to={tool.path}
+    <ToolLink
+      tool={tool}
       className={cn('fx-card card group flex h-full flex-col p-5 sm:p-6', className)}
       onPointerMove={(e) => pointerFx(e, 7)}
       onPointerLeave={pointerFxReset}
@@ -32,14 +33,14 @@ export function ToolCard({ tool, large, className }: { tool: ToolMeta; large?: b
         </span>
         <span className="sr-only">. {FAMILIES[tool.family].name}{isNew(tool) ? ', new' : ''}.</span>
       </span>
-    </Link>
+    </ToolLink>
   );
 }
 
 /** Compact, single-row variant for sidebars and lists. */
 export function ToolRow({ tool }: { tool: ToolMeta }) {
   return (
-    <Link to={tool.path} className="group flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-ink/40 hover:shadow-lift">
+    <ToolLink tool={tool} className="group flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 transition-all duration-300 hover:-translate-y-0.5 hover:border-ink/40 hover:shadow-lift">
       <span className="emoji-bubble sm" data-family={tool.family} aria-hidden="true">{tool.emoji}</span>
       <span className="min-w-0 flex-1">
         <span className="block font-semibold leading-tight">{tool.name}</span>
@@ -47,7 +48,7 @@ export function ToolRow({ tool }: { tool: ToolMeta }) {
       </span>
       {isNew(tool) && <span className="sticker copper">New</span>}
       <ArrowRight size={16} aria-hidden className="shrink-0 text-muted transition-transform duration-300 group-hover:translate-x-1" />
-    </Link>
+    </ToolLink>
   );
 }
 

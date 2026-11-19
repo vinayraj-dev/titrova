@@ -6,7 +6,7 @@ const PAGES = [
   '/', '/tools', '/apex-utilities', '/tools/json-to-apex', '/tools/soql-formatter', '/tools/salesforce-id-converter',
   '/tools/package-xml-builder', '/tools/apex-test-data-generator', '/guides', '/guides/salesforce-15-vs-18-character-ids',
   '/about', '/contact', '/privacy-policy', '/not-a-real-page', '/tools/jwt-decoder', '/tools/regex-tester',
-  '/tools/timestamp-converter', '/tools/base64-encoder-decoder', '/tools/curl-to-apex', '/encoding-utilities',
+  '/tools/timestamp-converter', '/tools/base64-encoder-decoder', '/tools/curl-to-apex', '/encoding-utilities', '/org-xray/',
 ];
 
 /** Automated WCAG 2.1 AA checks (axe-core) on every kind of page, in both themes. */

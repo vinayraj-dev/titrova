@@ -1,5 +1,5 @@
 import {
-  Binary, Braces, Clock4, Code2, Database, FileCode2, Fingerprint, FlaskConical, KeyRound, Link2, PackageOpen, Plug, Regex,
+  Binary, Braces, Clock4, ScanSearch, Code2, Database, FileCode2, Fingerprint, FlaskConical, KeyRound, Link2, PackageOpen, Plug, Regex,
   Settings2, ShieldCheck, Table2, Terminal, Webhook, type LucideIcon,
 } from 'lucide-react';
 
@@ -125,12 +125,26 @@ export interface ToolMeta {
   to: string;
   added: string;
   keywords: string[];
+  /** A standalone page in public/ (full page load), not a React route. */
+  staticPage?: boolean;
 }
 
-const t = (slug: string, rest: Omit<ToolMeta, 'slug' | 'path'>): ToolMeta => ({ slug, path: `/tools/${slug}`, ...rest });
+const t = (slug: string, rest: Omit<ToolMeta, 'slug' | 'path'>, path = `/tools/${slug}`): ToolMeta => ({ slug, path, ...rest });
 
 /** The order of this list is the "Popular" order on the dashboard. */
 export const TOOLS: ToolMeta[] = [
+  t(
+    'org-xray',
+    {
+      name: 'Org X-ray: Order of Execution Visualizer', short: 'Org X-ray', emoji: '🩻', family: 'salesforce',
+      tagline: 'Replay every flow, trigger, validation rule and workflow that runs when a record saves, and spot overwritten fields.',
+      description: 'Salesforce order of execution visualizer: replay the flows, triggers and rules that run on save and find overwritten fields. Free and private.',
+      seoTitle: 'Salesforce Order of Execution Visualizer', categories: ['admin', 'apex'], icon: ScanSearch,
+      from: 'Org metadata', to: 'Save replay', added: '2026-11-19', staticPage: true,
+      keywords: ['order of execution', 'flow', 'trigger', 'validation rule', 'workflow', 'process builder', 'automation', 'overwritten', 'debug'],
+    },
+    '/org-xray/',
+  ),
   t('json-to-apex', {
     name: 'JSON to Apex Class Generator', short: 'JSON to Apex', emoji: '🧩', family: 'salesforce',
     tagline: 'Paste a JSON payload and get typed Apex wrapper classes with a parse() method.',
